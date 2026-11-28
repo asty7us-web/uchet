@@ -1,0 +1,1487 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Учёт — ввод</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<style>
+/* «Учёт» → ввод операций с компьютера (пакет 1, 21.11). Страница локальная, не выкладывается.
+   На сайте /uchet/vvod/: подсказки — зашифрованный data.json, отправка пачки на сервер, Ctrl+S — запасной путь файлом. */
+:root{
+  --bg:#f2f2f7;--card:#fff;--card2:#f7f7fa;--fill:rgba(118,118,128,.12);--fill2:rgba(118,118,128,.07);
+  --ink:#0b0b0f;--ink2:#55555e;--ink3:#8e8e96;--line:rgba(60,60,67,.12);--line2:rgba(60,60,67,.07);
+  --acc:#0a6cff;--acc-soft:rgba(10,108,255,.11);--on-acc:#fff;
+  --good:#16904a;--warn:#b86400;--bad:#d92d3a;--good-soft:rgba(31,157,85,.13);--warn-soft:rgba(217,119,6,.15);--bad-soft:rgba(229,56,59,.11);
+  --r:14px;--f:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#000;--card:#1c1c1e;--card2:#242426;--fill:rgba(120,120,128,.26);--fill2:rgba(120,120,128,.16);
+  --ink:#f5f5f7;--ink2:#b9b9c0;--ink3:#8e8e93;--line:rgba(255,255,255,.11);--line2:rgba(255,255,255,.07);
+  --acc:#3d8bff;--acc-soft:rgba(61,139,255,.2);--good:#32d74b;--warn:#ff9f0a;--bad:#ff5a5f;
+  --good-soft:rgba(50,215,75,.16);--warn-soft:rgba(255,159,10,.17);--bad-soft:rgba(255,90,95,.17);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000;--card:#1c1c1e;--card2:#242426;--fill:rgba(120,120,128,.26);--fill2:rgba(120,120,128,.16);
+  --ink:#f5f5f7;--ink2:#b9b9c0;--ink3:#8e8e93;--line:rgba(255,255,255,.11);--line2:rgba(255,255,255,.07);
+  --acc:#3d8bff;--acc-soft:rgba(61,139,255,.2);--good:#32d74b;--warn:#ff9f0a;--bad:#ff5a5f;
+  --good-soft:rgba(50,215,75,.16);--warn-soft:rgba(255,159,10,.17);--bad-soft:rgba(255,90,95,.17);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1360px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0 0 2px;letter-spacing:-.01em}
+.sub{color:var(--ink3);font-size:12.5px}
+.top{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.top .r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kto{display:flex;gap:6px;align-items:center;color:var(--ink2);font-size:13px}
+.kto input{width:110px}
+.btn{border:0;border-radius:10px;padding:8px 14px;font:600 13.5px var(--f);background:var(--fill);color:var(--ink);cursor:pointer}
+.btn.acc{background:var(--acc);color:var(--on-acc)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.sm{padding:3px 9px;font-size:12px;font-weight:500;border-radius:8px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 8px rgba(0,0,0,.04);padding:12px 14px;margin-bottom:12px}
+.help{color:var(--ink2);font-size:12.5px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.help b{font-weight:600;color:var(--ink);background:var(--fill2);border-radius:5px;padding:0 5px}
+.scroll{overflow-x:auto}
+.dopr{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:6px;font-size:13px;color:var(--mut,#777)}.dopr label{display:flex;gap:6px;align-items:center}.dopr .f{width:auto}.dopr .prl{flex:1 1 280px}.dopr .prl .f{flex:1;min-width:0}
+.grid{display:grid;grid-template-columns:104px 132px minmax(200px,1.25fr) minmax(170px,1fr) minmax(150px,.9fr) minmax(140px,1fr);gap:6px;align-items:center;min-width:980px}
+.grid.per{grid-template-columns:104px 132px minmax(190px,1fr) minmax(190px,1fr) minmax(150px,.9fr) minmax(140px,1fr)}
+.hd{color:var(--ink3);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+input.f{width:100%;border:1px solid var(--line);background:var(--card2);color:var(--ink);border-radius:9px;padding:7px 9px;font:14px var(--f);outline:none}
+input.f:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft);background:var(--card)}
+input.f.hint{color:var(--ink2);font-style:italic}
+input.f.sum{text-align:right;font-variant-numeric:tabular-nums}
+input.f.plus{color:var(--good);font-weight:600}
+.msgrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}.msgrow label{color:var(--ink2);font-size:12.5px;white-space:nowrap}.msgrow input{flex:1}
+.s2wrap{display:none}
+.per .s2wrap{display:block}
+.per .stcell{display:none}
+.chasti{margin:6px 0 0 110px;display:flex;flex-direction:column;gap:5px}
+.chast{display:grid;grid-template-columns:24px 132px minmax(170px,280px) minmax(150px,240px);gap:6px;align-items:center}
+.chast .n{color:var(--ink3);font-size:12px;text-align:right}
+.msg{margin-top:8px;font-size:13px;min-height:18px}
+.msg.warn{background:var(--warn-soft);color:var(--ink);border-radius:9px;padding:7px 10px}
+.msg.err{color:var(--bad)}
+.dd{position:absolute;z-index:20;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px -8px rgba(0,0,0,.28);
+  padding:4px;max-height:300px;overflow:auto;min-width:240px;display:none}
+.dd div{padding:5px 8px;border-radius:7px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}
+.dd div.on{background:var(--acc-soft)}
+.dd div small{color:var(--ink3);margin-left:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--ink3);font-weight:500;text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;padding:4px 6px;border-bottom:1px solid var(--line)}
+td{padding:6px;border-bottom:1px solid var(--line2);vertical-align:top}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.num.plus{color:var(--good)}
+td.num.per{color:var(--acc)}
+tr.otm td{color:var(--ink3);text-decoration:line-through}
+tr.otm td.act{text-decoration:none}
+.tag{display:inline-block;white-space:nowrap;margin-bottom:2px;font-size:11px;border-radius:6px;padding:0 6px;background:var(--fill2);color:var(--ink2);margin-right:4px}
+.tag.ok{background:var(--good-soft);color:var(--good)}
+.tag.w{background:var(--warn-soft);color:var(--warn)}
+.tag.b{background:var(--bad-soft);color:var(--bad)}
+.ch{color:var(--ink3);font-size:12px}
+.pm{color:var(--ink2);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{color:var(--ink3);padding:10px 4px}
+.nodata{background:var(--bad-soft);color:var(--bad);border-radius:12px;padding:14px;margin:12px 0}
+h2{font-size:15px;margin:0 0 8px}
+.cnt{color:var(--ink3);font-weight:500;font-size:13px}
+.tabs{display:flex;gap:4px;margin:0 0 12px;background:var(--fill2);border-radius:12px;padding:3px;width:max-content;max-width:100%}
+.tab{border:0;background:none;color:var(--ink2);font:600 13.5px var(--f);padding:7px 16px;border-radius:9px;cursor:pointer}
+.tab.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tabn{display:inline-block;min-width:20px;margin-left:4px;padding:0 6px;border-radius:9px;background:var(--acc);color:var(--on-acc);font-size:12px;line-height:18px}
+.tabn.nol{background:var(--good-soft);color:var(--good)}
+.rzhead{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}.rzhead h2{margin:0}
+#rz_tek{border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+#rz_tek .op{font-size:14px;margin-bottom:8px}
+#rz_tek .op b{font-variant-numeric:tabular-nums}
+#rz_tek .op .pm2{color:var(--ink2);font-size:12.5px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:5px 10px;font:13px var(--f);cursor:pointer}
+.chip kbd{font:600 11.5px var(--f);background:var(--fill);border-radius:5px;padding:0 5px;margin-right:6px;color:var(--ink2)}
+.chip.on{border-color:var(--acc);background:var(--acc-soft)}
+.chip.poh{border-style:dashed}
+.chip:disabled{opacity:.45;cursor:default}
+.rzpoisk{max-width:360px;margin-bottom:4px}
+.rzvse{background:var(--good-soft);color:var(--good);border-radius:10px;padding:10px 12px;font-weight:600}
+table.rz tr{cursor:pointer}
+table.rz tr.tek td{background:var(--acc-soft)}
+table.rz tr.tek td:first-child{box-shadow:inset 3px 0 0 var(--acc)}
+table.rz tr.poh td{background:var(--fill2)}
+table.rz tr.done td{color:var(--ink2)}
+table.rz td.st i{color:var(--ink2)}
+table.rz td.st b{font-weight:600}
+table.rz .po{color:var(--ink3);font-size:11.5px}
+.lock{max-width:420px;margin:40px auto;padding:0 16px}
+.lock .card{padding:18px;border-radius:var(--r)}
+.lock .inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:14px var(--f);margin:10px 0}
+.lock .lbl{color:var(--ink2);font-size:13px}
+#pwerr{color:var(--bad);font-size:13px;min-height:18px}
+/* 27.11 (Андрей: «не сделано под пользование, в том числе по телефону») — кнопки вместо клавиш, пояснения, телефон */
+.knopki{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.poyasn{margin:-4px 0 8px}
+.mob{display:none}
+.msg .btn.sm{margin:4px 6px 0 0}
+@media (max-width:700px){
+  .wrap{padding:10px 12px}
+  .pc,.chip kbd{display:none!important}
+  .mob{display:block}
+  h1{font-size:20px}
+  .top{align-items:center;margin-bottom:10px}
+  .top .r{width:100%}
+  .top .r .btn{flex:1;padding:12px 10px;font-size:15px;text-align:center}
+  #schetchik{width:100%}
+  .tabs{width:100%}.tab{flex:1;padding:10px 6px;font-size:15px;white-space:nowrap}
+  .card{padding:12px}
+  input.f{font-size:16px;padding:11px 12px;border-radius:11px}
+  .msgrow{flex-direction:column;align-items:stretch;gap:4px}
+  .scroll{overflow:visible}
+  #hdr{display:none}
+  .grid,.grid.per{grid-template-columns:1fr 1fr;min-width:0;gap:8px}
+  #row>*:nth-child(n+3){grid-column:1/-1}
+  .per .stcell,.s2wrap{display:none}.per .s2wrap{display:block}
+  .chasti{margin:8px 0 0;gap:8px}
+  .chast{grid-template-columns:22px 1fr;gap:6px}
+  .chast input:nth-child(n+3){grid-column:2}
+  .knopki .btn{flex:1 1 45%;padding:12px 10px;font-size:15px}
+  .knopki #dobavit{flex-basis:100%}
+  .msg .btn.sm{padding:9px 14px;font-size:14px}
+  .dd{max-width:calc(100vw - 24px)}
+  .dd div{white-space:normal;padding:11px 10px;font-size:15px;max-width:none}
+  table.kart thead{display:none}
+  table.kart tbody tr{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  table.kart td{border:0;padding:0}
+  table.kart td:nth-child(2){text-align:right;font-weight:600;font-size:15px}
+  table.kart td:nth-child(n+3){grid-column:1/-1}
+  table.kart td:empty{display:none}
+  table.kart td.pm{max-width:none;white-space:normal;color:var(--ink2)}
+  table.kart td.empty,table.kart td[colspan]{grid-column:1/-1;text-align:left;font-weight:400}
+  table.kart td.act .btn{padding:9px 14px;font-size:14px;margin-top:4px}
+  table.rz tr.tek td:first-child{box-shadow:none}
+  table.rz tr.tek{box-shadow:inset 3px 0 0 var(--acc);background:var(--acc-soft);border-radius:8px;padding-left:8px}
+  table.rz tr.tek td{background:none}
+  #rz_tek .op .pm2{white-space:normal}
+  .chip{padding:11px 12px;font-size:15px;text-align:left;width:100%}
+  .rzpoisk{max-width:none}
+}
+.vpdrop{margin:12px 0}
+.vpdrop-inner{border:2px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;color:var(--ink2);font-size:15px;cursor:pointer;min-height:52px;display:flex;align-items:center;justify-content:center;background:var(--card2)}
+.vpdrop-inner.vp-over{border-color:var(--acc);background:var(--acc-soft);color:var(--ink)}
+.vpcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--card2);font-size:13.5px}
+.vpcard b{display:block;margin-bottom:4px}
+.vpcard .vprow{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--ink2)}
+.vpist .vpi{padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px}
+.vpist .vpi:last-child{border:0}
+@media (max-width:700px){
+  .vpdrop-inner{padding:20px 12px;min-height:48px;font-size:16px}
+  #vp_knopki .btn{flex:1;padding:14px 12px;font-size:16px;min-height:48px}
+}
+/* 27.11 «Склад» и «Начисления»: поля в столбик, крупные кнопки — удобно с телефона */
+.tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.segs{display:flex;gap:4px;background:var(--fill2);border-radius:12px;padding:3px;margin:0 0 10px;max-width:520px}
+.seg{flex:1;border:0;background:none;color:var(--ink2);font:600 14px var(--f);padding:9px 8px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.seg.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+#skl_vid{flex-wrap:wrap;max-width:640px}#skl_vid .seg{flex:1 1 30%;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.stolb{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;max-width:1100px}
+label.lbl,.skf .lbl{display:block;color:var(--ink2);font-size:12.5px;margin:0 0 3px}
+.skrow{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:start;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:10px;margin:8px 0;max-width:1100px}
+.skn{color:var(--ink3);font-size:12px;padding-top:24px;text-align:right}
+.skf .sub{margin-top:3px}
+.skgrid{display:grid;grid-template-columns:minmax(110px,180px);gap:8px;margin-top:8px}
+.skgrid.tri{grid-template-columns:repeat(3,minmax(110px,180px))}
+.skdel{margin-top:22px}
+.skitog{margin-top:10px;font-size:14px;color:var(--ink2)}
+.skitog b{color:var(--ink)}
+#skl_check{margin-top:12px;border:1px solid var(--acc);border-radius:12px;padding:12px;background:var(--acc-soft)}
+.sklist .skli{padding:8px 0;border-bottom:1px solid var(--line2);font-size:14px}
+.sklist .skli:last-child{border:0}
+.skbs{color:var(--ink2);font-size:13.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+.skbs.minus{color:var(--bad);font-weight:600}
+.dolgi{display:flex;flex-wrap:wrap;gap:8px 24px}
+.dolgi div{display:flex;flex-direction:column}.dolgi span{color:var(--ink3);font-size:12px}.dolgi b{font-size:17px;font-variant-numeric:tabular-nums}
+.vpi.zam{opacity:.55}
+@media (max-width:700px){
+  .tabs{flex-wrap:wrap;overflow:visible}.tab{flex:1 0 auto;padding:10px 12px}   /* пять вкладок: в две строки, все видны */
+  .segs{max-width:none}.seg{padding:12px 6px;font-size:15px}
+  .stolb{grid-template-columns:1fr;gap:12px}
+  label.lbl,.skf .lbl{font-size:14px}
+  .skrow{grid-template-columns:1fr auto;padding:12px 10px}
+  .skn{display:none}
+  .skgrid,.skgrid.tri{grid-template-columns:1fr 1fr}
+  .skgrid.tri>div:first-child{grid-column:1/-1}
+  .skdel{margin-top:24px;padding:10px 12px;font-size:15px}
+  #skl_knopki .btn,#skl_check .btn,#p_nach .knopki .btn,#skl_add{flex:1 1 100%;padding:14px 12px;font-size:16px;min-height:48px}
+  .skitog{font-size:15px}
+}
+/* 27.11 галочка «в Финтабло / МойСклад» */
+.galka{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--ink2);cursor:pointer;user-select:none;margin:6px 0}
+.galka input{width:18px;height:18px;margin:0;accent-color:var(--acc,#2f6bff)}
+</style>
+</head>
+<body>
+<div id="lock" class="lock" style="display:none"></div>
+<div class="wrap" id="app">
+  <div class="top">
+    <div><h1>Ввод операций</h1><div class="sub pc" id="istochnik"></div></div>
+    <div class="r">
+      <span class="sub" id="schetchik"></span>
+      <label class="galka" title="Снимите галочку — запись останется только в «Учёте», в Финтабло не уйдёт"><input type="checkbox" id="v_ft" checked> в Финтабло</label>
+      <button class="btn acc" id="otpravit" title="Ctrl+Enter">Отправить</button>
+      <button class="btn pc" id="sohranit" title="Ctrl+S">Сохранить файлом</button>
+      <a class="btn" href="../" id="k_nazad" style="text-decoration:none">← Учёт</a>
+    </div>
+  </div>
+  <div id="nodata" class="nodata" style="display:none">Нет файла подсказок podskazki.js рядом со страницей. Соберите: <code>python -X utf8 svoy_servis\vvod\podskazki.py</code> и откройте страницу из папки, куда он её положил.</div>
+  <div class="tabs" role="tablist">
+    <button class="tab on" id="t_vvod" data-tab="vvod" title="Alt+V">Ввод</button>
+    <button class="tab" id="t_rz" data-tab="rz" title="Alt+R">Разобрать <span class="tabn" id="rz_n"></span></button>
+    <button class="tab" id="t_vp" data-tab="vp">Выписка</button>
+    <button class="tab" id="t_skl" data-tab="skl">Склад</button>
+    <button class="tab" id="t_nach" data-tab="nach">Начисления</button>
+  </div>
+  <div id="p_vvod">
+  <div class="card pc">
+    <div class="help">
+      <span><b>Enter</b> записать строку (подсказки курсивом принимаются), следующая — с той же датой и счётом</span>
+      <span><b>PgDn</b> / <b>PgUp</b> дата на день назад / вперёд</span>
+      <span><b>=</b> и две цифры — другой день месяца</span>
+      <span>Приход или расход — по статье; <b>−</b> / <b>+</b> перед суммой — принудительно</span>
+      <span>Буквы в сумме — сразу контрагент</span>
+      <span><b>&gt;</b> в сумме или счёте — перевод «со счёта → на счёт»</span>
+      <span><b>Ctrl+V</b> сообщения из чата — разбор в строку</span>
+      <span><b>Alt+P</b> разбить на части</span>
+      <span><b>Esc</b> закрыть список / убрать строку</span>
+      <span><b>Ctrl+S</b> сохранить пачку</span>
+    </div>
+  </div>
+  <div class="card" id="vvodcard">
+    <div class="msgrow"><label for="v_msg">Сообщение из чата</label><input class="f" id="v_msg" placeholder="вставьте текст сообщения, например «13865 оплатил 5 канистр Яндекс мой» — разберу в строку" autocomplete="off" tabindex="-1"></div>
+    <div class="scroll">
+      <div class="grid hd" id="hdr"><div>Дата</div><div>Сумма</div><div>Счёт</div><div class="stcell" id="hst">Статья</div><div class="s2wrap f" style="border:0;background:none;padding:0">На счёт</div><div>Контрагент</div><div>Пометка</div></div>
+      <div class="grid" id="row">
+        <input class="f" id="v_data" placeholder="дд.мм" autocomplete="off" tabindex="-1" title="PgDn / PgUp — день назад / вперёд, «=» и две цифры — день месяца">
+        <input class="f sum" id="v_kop" placeholder="0,00" autocomplete="off" inputmode="decimal">
+        <input class="f" id="v_s1" placeholder="счёт: буквы или *1234" autocomplete="off">
+        <div class="stcell"><input class="f" id="v_st" placeholder="статья" autocomplete="off"></div>
+        <div class="s2wrap"><input class="f" id="v_s2" placeholder="на счёт" autocomplete="off"></div>
+        <input class="f" id="v_k" placeholder="кто / что" autocomplete="off">
+        <input class="f" id="v_p" placeholder="пометка" autocomplete="off">
+      </div>
+      <div class="dopr" id="dopRow">
+        <label>месяц начисления <input class="f" id="v_mn" type="month" title="Пусто — месяц даты операции (как в Финтабло «период начисления»)"></label>
+        <label>распределить <select class="f" id="v_rm"><option value="1">1 мес</option><option>2</option><option>3</option><option>4</option><option>6</option><option>12</option></select></label>
+        <label class="prl">приёмка МС <input class="f" id="v_pr" list="prList" placeholder="номер или поставщик — только для расхода" autocomplete="off"></label>
+        <datalist id="prList"></datalist>
+      </div>
+    </div>
+    <div class="chasti" id="chasti"></div>
+    <div class="knopki">
+      <button class="btn acc" id="dobavit" title="Enter">Добавить</button>
+      <button class="btn" id="k_per" title="«>» в сумме или счёте">Перевод между счетами</button>
+      <button class="btn" id="k_chast" title="Alt+P">Разбить на части</button>
+      <button class="btn" id="k_sbros" title="Esc">Очистить</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+  <div class="card">
+    <h2>Добавлено <span class="cnt" id="vpachke"></span></h2>
+    <div class="sub poyasn">Строки, добавленные на этом устройстве. Кнопка «Отправить» наверху отправит в учёт все неотправленные сразу.</div>
+    <div class="scroll"><table class="kart"><thead><tr><th>Дата</th><th style="text-align:right">Сумма</th><th>Счёт</th><th>Статья</th><th>Контрагент</th><th>Пометка</th><th></th><th></th></tr></thead>
+    <tbody id="spisok"></tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>Уже в учёте <span class="cnt" id="vbaze"></span></h2>
+    <div class="sub poyasn">Что раньше внесли на этой странице. Здесь можно исправить или отменить запись.</div>
+    <div class="scroll"><table class="kart"><thead><tr><th>Дата</th><th style="text-align:right">Сумма</th><th>Счёт</th><th>Статья</th><th>Контрагент</th><th>Пометка</th><th></th><th></th></tr></thead>
+    <tbody id="svoi"></tbody></table></div>
+  </div>
+  </div>
+  <div id="p_rz" style="display:none">
+  <div class="card">
+    <div class="rzhead"><h2>Разобрать <span class="cnt" id="rz_ost"></span></h2><span class="sub" id="rz_ist"></span></div>
+    <div class="sub poyasn mob">Операции из банков пришли сами, но без статьи. Нажмите подходящую статью — и дальше к следующей.</div>
+    <div class="help pc">
+      <span><b>Enter</b> да — подсказанная статья</span>
+      <span><b>1</b>…<b>5</b> вариант из частых</span>
+      <span><b>Shift+Enter</b> так же для похожих (тот же контрагент или назначение)</span>
+      <span>Буквы — найти другую статью</span>
+      <span><b>↑</b> / <b>↓</b> по строкам</span>
+      <span><b>Backspace</b> вернуть решение (до сохранения)</span>
+      <span><b>Ctrl+S</b> сохранить пачку</span>
+    </div>
+  </div>
+  <div class="card" id="rz_card">
+    <div id="rz_tek"></div>
+    <div class="rzpoisk"><input class="f" id="rz_poisk" placeholder="другая статья: начните писать" autocomplete="off"></div>
+    <div class="msg" id="rz_msg"></div>
+    <div class="scroll"><table class="rz kart"><thead><tr><th>Дата</th><th style="text-align:right">Сумма</th><th>Счёт</th><th>Контрагент · назначение</th><th>Статья</th><th></th></tr></thead>
+    <tbody id="rz_spisok"></tbody></table></div>
+  </div>
+  </div>
+  <div id="p_vp" style="display:none">
+  <div class="card">
+    <h2>Загрузить выписку банка</h2>
+    <p class="sub poyasn">Выписка из банка: Excel (.xlsx, .xls), PDF (не скан) или выгрузка «в 1С» (.txt). Вверху файла должен быть номер счёта. Excel и PDF сначала покажу — сохраните после проверки. Повторы и то, что уже внесено, программа отсеет сама.</p>
+    <div class="vpdrop" id="vp_drop">
+      <input type="file" id="vp_file" accept=".txt,.xlsx,.xls,.pdf" multiple hidden>
+      <div class="vpdrop-inner" id="vp_dropzone">Выберите или перетащите файлы: Excel, PDF или .txt</div>
+    </div>
+    <div id="vp_prev"></div>
+    <div class="knopki" id="vp_knopki" style="display:none">
+      <button class="btn acc" id="vp_zagruzit">Загрузить</button>
+    </div>
+    <div class="msg" id="vp_msg"></div>
+  </div>
+  <div class="card" id="vp_istoriya" style="display:none">
+    <h2>За этот сеанс</h2>
+    <div id="vp_spisok"></div>
+  </div>
+  </div>
+  <div id="p_skl" style="display:none">
+  <div class="card" id="skl_form">
+    <h2>Складской документ <span class="cnt" id="skl_at"></span></h2>
+    <div class="segs" id="skl_vid" role="group" aria-label="вид документа">
+      <button type="button" class="seg on" data-v="priemka">Приёмка</button>
+      <button type="button" class="seg" data-v="peremeshchenie">Перемещение</button>
+      <button type="button" class="seg" data-v="spisanie">Списание</button>
+      <button type="button" class="seg" data-v="oprihodovanie">Оприходование</button>
+      <button type="button" class="seg" data-v="vozvrat">Возврат поставщику</button>
+      <button type="button" class="seg" data-v="inventarizaciya">Инвентаризация</button>
+    </div>
+    <div class="sub poyasn" id="skl_zapis"></div>
+    <div class="stolb">
+      <div><label class="lbl" for="skl_data">Дата документа</label><input class="f" id="skl_data" type="date"></div>
+      <div><label class="lbl" for="skl_s1" id="skl_l1">На склад</label><input class="f" id="skl_s1" placeholder="начните писать склад" autocomplete="off"></div>
+      <div id="skl_b2" style="display:none"><label class="lbl" for="skl_s2">На склад</label><input class="f" id="skl_s2" placeholder="куда перемещаете" autocomplete="off"></div>
+      <div id="skl_bp"><label class="lbl" for="skl_post">Поставщик</label><input class="f" id="skl_post" placeholder="начните писать поставщика" autocomplete="off"></div>
+      <div id="skl_bpr" style="display:none"><label class="lbl" for="skl_prich">Причина списания</label>
+        <div class="chips" id="skl_pr_chips"></div><input class="f" id="skl_prich" placeholder="или впишите свою" autocomplete="off" style="margin-top:6px"></div>
+    </div>
+    <h2 style="margin-top:14px">Товары</h2>
+    <div id="skl_rows"></div>
+    <div class="knopki"><button class="btn" id="skl_add">+ Ещё товар</button></div>
+    <div class="stolb" style="margin-top:10px"><div><label class="lbl" for="skl_kom">Комментарий (по желанию)</label><input class="f" id="skl_kom" autocomplete="off"></div></div>
+    <div class="skitog" id="skl_itogo"></div>
+    <label class="galka" title="Снимите галочку — запись останется только в «Учёте», в МойСклад не уйдёт"><input type="checkbox" id="skl_ms" checked> Отправить в МойСклад</label>
+    <div class="knopki" id="skl_knopki">
+      <button class="btn acc" id="skl_prov">Проверить: было → стало</button>
+      <button class="btn" id="skl_sbros">Очистить</button>
+    </div>
+    <div id="skl_check" style="display:none"></div>
+    <div class="msg" id="skl_msg"></div>
+  </div>
+  <div class="card" id="skl_ist_card" style="display:none">
+    <h2>Уже внесено</h2>
+    <div class="vpist" id="skl_ist"></div>
+  </div>
+  </div>
+  <div id="p_nach" style="display:none">
+  <div class="card" id="nach_form">
+    <h2>Начисление</h2>
+    <div class="segs" id="nach_vid" role="group" aria-label="вид начисления">
+      <button type="button" class="seg on" data-v="zarplata">Зарплата</button>
+      <button type="button" class="seg" data-v="akt_ff">Акт ФФ</button>
+      <button type="button" class="seg" data-v="procenty">Проценты</button>
+    </div>
+    <div class="sub poyasn" id="nach_zapis"></div>
+    <div class="stolb">
+      <div><label class="lbl" for="nach_mes">Месяц</label><input class="f" id="nach_mes" type="month"></div>
+    </div>
+    <div class="stolb" id="nb_zp">
+      <div><label class="lbl" for="nach_sotr">Сотрудник</label><input class="f" id="nach_sotr" placeholder="начните писать имя" autocomplete="off"><div class="sub" id="nach_sotr_h"></div></div>
+      <div><label class="lbl" for="nach_ok">Оклад, ₽</label><input class="f sum" id="nach_ok" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+      <div><label class="lbl" for="nach_pr">Премия, ₽ (если есть)</label><input class="f sum" id="nach_pr" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+      <div><label class="lbl" for="nach_ud">Удержание, ₽ (если есть)</label><input class="f sum" id="nach_ud" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <div id="nb_ffz" style="display:none">
+      <input type="file" id="ff_file" accept=".pdf,.xlsx,.xls" hidden>
+      <button type="button" class="btn" id="ff_zagr">📎 Загрузить счёт или акт файлом (PDF, Excel)</button>
+      <div class="sub">Программа сама найдёт фулфилмент, номер, дату, месяц и сумму, покажет — и внесёт после «Внести». Повтор того же счёта не пропустит.</div>
+      <div id="ff_prev"></div>
+    </div>
+    <div class="stolb" id="nb_ff" style="display:none">
+      <div><label class="lbl" for="nach_ff">Фулфилмент</label><input class="f" id="nach_ff" placeholder="начните писать ФФ" autocomplete="off"></div>
+      <div><label class="lbl" for="nach_na">Номер акта</label><input class="f" id="nach_na" autocomplete="off" placeholder="как в акте"></div>
+      <div><label class="lbl" for="nach_da">Дата акта</label><input class="f" id="nach_da" type="date"></div>
+      <div><label class="lbl" for="nach_sumff">Сумма акта, ₽</label><input class="f sum" id="nach_sumff" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <div class="stolb" id="nb_pr" style="display:none">
+      <div><label class="lbl" for="nach_kr">Кредит</label><input class="f" id="nach_kr" placeholder="начните писать банк или карту" autocomplete="off"></div>
+      <div><label class="lbl" for="nach_sumpr">Начислено процентов, ₽</label><input class="f sum" id="nach_sumpr" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <div class="stolb"><div><label class="lbl" for="nach_kom">Комментарий (по желанию)</label><input class="f" id="nach_kom" autocomplete="off"></div></div>
+    <div class="skitog" id="nach_itog"></div>
+    <label class="galka" title="Снимите галочку — запись останется только в «Учёте», в Финтабло не уйдёт"><input type="checkbox" id="nach_ft" checked> Отправить в Финтабло</label>
+    <div class="knopki">
+      <button class="btn acc" id="nach_go">Записать</button>
+      <button class="btn" id="nach_sbros">Очистить</button>
+    </div>
+    <div class="msg" id="nach_msg"></div>
+  </div>
+  <div class="card">
+    <h2>Долги по начислениям</h2>
+    <div id="nach_dolgi"></div>
+  </div>
+  <div class="card" id="nach_ist_card" style="display:none">
+    <h2>Уже внесено</h2>
+    <div class="vpist" id="nach_ist"></div>
+  </div>
+  </div>
+</div>
+<div class="dd" id="dd"></div>
+<script src="podskazki.js"></script>
+<script>
+(()=>{
+/* ключ uch.dk, расшифровка data.json (как c_core.js «Учёта»), вход паролем */
+const $=id=>document.getElementById(id);
+const LSTORE=p=>({get(k,d){try{const v=localStorage.getItem(p+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(p+k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(p+k)}catch(e){}}});
+const RS=LSTORE('uch.');
+const b64u8=s=>{const b=atob(s),n=b.length,u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=b.charCodeAt(i);return u};
+const u8b64=u=>{let s='';for(let i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s)};
+let DK=null;
+async function kid16(dk){const h=await crypto.subtle.digest('SHA-256',dk);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,16)}
+async function keyByPass(pw){const enc=await fetchEnc('data.json',false);for(const s of (enc.keys||[])){try{
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const wk=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64u8(s.salt),iterations:enc.iter||310000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const dk=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64u8(s.iv)},wk,b64u8(s.wk)));
+  if(dk.length===32){let bs='';dk.forEach(b=>bs+=String.fromCharCode(b));RS.set('dk',{id:enc.kid,k:btoa(bs)});return true}}catch(e){}}return false}
+function keyFrom(t){const m=String(t||'').match(/k=([A-Za-z0-9_-]{40,})/);if(!m)return false;
+  try{const b=m[1].replace(/-/g,'+').replace(/_/g,'/'),o=JSON.parse(new TextDecoder().decode(b64u8(b+'==='.slice((b.length+3)%4))));
+    if(o&&o.k&&o.id&&b64u8(o.k).length===32){RS.set('dk',{id:o.id,k:o.k});return true}}catch(e){}return false}
+async function openKey(enc){const c=RS.get('dk',null);if(c&&c.id===enc.kid)return b64u8(c.k);throw new Error('NEED_KEY')}
+async function gunzip(u8){if(!('DecompressionStream' in window))throw new Error('NO_GZ');
+  return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer())}
+const LOCAL=/^(localhost|127\.|192\.168\.)/.test(location.hostname);
+async function fetchEnc(name,fresh){
+  if(fresh&&!LOCAL){try{const r=await fetch('https://raw.githubusercontent.com/asty7us-web/uchet/main/vvod/'+name+'?t='+Date.now(),{cache:'no-store'});if(r.ok)return await r.json()}catch(e){}}
+  const r=await fetch(name+(fresh?'?t='+Date.now():''),{cache:'no-cache'});if(!r.ok)throw new Error('Данные не загрузились ('+r.status+')');return r.json()}
+async function decFile(enc,dk){
+  let plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64u8(enc.iv)},await crypto.subtle.importKey('raw',dk,'AES-GCM',false,['decrypt']),b64u8(enc.ct)));
+  if(enc.z)plain=await gunzip(plain);return JSON.parse(new TextDecoder().decode(plain))}
+async function loadPod(fresh){const enc=await fetchEnc('data.json',fresh),dk=await openKey(enc);
+  try{return await decFile(enc,dk)}catch(e){if(e.message==='NO_GZ')throw e;RS.del('dk');throw new Error('BAD_KEY')}}
+async function dkRaw(){const c=RS.get('dk',null);if(!c)throw new Error('NEED_KEY');return b64u8(c.k)}
+const LOCKF='<form class="card" id="pwf"><h1>Ввод операций</h1><div class="lbl">Введите пароль бухгалтера «Учёта» — или вставьте личную ссылку.</div>'
+  +'<input class="inp" id="lnk" type="text" autocomplete="off" placeholder="пароль или ссылка"><div id="pwerr"></div><button class="btn acc press" id="pwgo" type="submit">Открыть</button></form>';
+function lockOn(msg){const L=$('lock');if(!$('#pwf'))L.innerHTML=LOCKF;L.style.display='block';$('app').style.display='none';$('pwerr').textContent=msg||''}
+function lockOff(){$('lock').style.display='none';$('lock').innerHTML='';$('app').style.display=''}
+'use strict';
+/* «Учёт» → ввод операций (пакет 1 + доводка 21.11). Одна строка ввода: дата · сумма · счёт · статья · контрагент · пометка.
+   Enter — записать строку в пачку (следующая — с той же датой и счётом). Дата — как у прошлой строки: PageDown / PageUp — день
+   назад / вперёд, «=» и две цифры — день этого месяца. Приход или расход — по статье, «−» / «+» перед суммой — принудительно.
+   «>» в сумме или счёте — перевод (второй счёт — по истории переводов), буквы в сумме — сразу контрагент, Ctrl+V сообщения
+   из чата — разбор в строку (дата, сумма, счёт, статья). Alt+P — части, Ctrl+S — пачка файлом (её принимает prinyat.py). */
+let D=window.VVOD||null;
+const QLS='vvod.q.v1';
+const MSK=()=>new Date(Date.now()+3*3600e3).toISOString().slice(0,19).replace('T',' ');
+function uuid(){try{if(crypto.randomUUID)return crypto.randomUUID()}catch(e){}
+  const b=crypto.getRandomValues(new Uint8Array(16));b[6]=b[6]&15|64;b[8]=b[8]&63|128;
+  const h=[...b].map(x=>x.toString(16).padStart(2,'0')).join('');
+  return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20)}
+const norm=s=>String(s||'').toLowerCase().replace(/ё/g,'е');
+function klyuch(t){if(!t)return '';                      // как klyuch() в podskazki.py
+  const s=norm(t).replace(/^\s*\[[^\]]*\]\s*[^:\s]{1,30}:\s*/,'');
+  return s.replace(/[^a-zа-я]+/g,' ').split(' ').filter(w=>w.length>=2).slice(0,3).join(' ')}
+function rub(kop){const s=(Math.abs(kop)/100).toFixed(2).split('.');return s[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ')+','+s[1]}
+function parseSum(t){t=String(t||'').replace(/\s/g,'');let plus=false,minus=false;
+  if(t[0]==='+'){plus=true;t=t.slice(1)}else if(t[0]==='-'||t[0]==='−'){minus=true;t=t.slice(1)}
+  if(!/^\d+([.,]\d{0,2})?$/.test(t))return null;
+  const [a,b='']=t.split(/[.,]/);const kop=parseInt(a,10)*100+parseInt((b+'00').slice(0,2),10);
+  return kop>0?{plus,minus,kop}:null}
+const sdvigDnya=(iso,n)=>{const d=new Date(iso+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+/* основы слов — как stemy() в podskazki.py */
+const PRF_VSE=/\[?\[\d{1,2}\.\d{1,2}\.\d{2,4}[^\]]*\]\s*[^:\n\[\]]{0,30}:/g;
+const STOP=new Set('на с со в во за и из по р руб рублей шт для от к до это их то же а но мне вы вам уже еще при фотография'.split(' '));
+function stemy(t,n){if(!t)return [];let s=norm(t).replace(PRF_VSE,' ').replace(/т[\s-]?банк/g,'тбанк').replace(/ozon/g,'озон');
+  const out=[];for(const w of s.replace(/[^a-zа-я]+/g,' ').split(' '))if(w.length>=2&&!STOP.has(w)&&!out.includes(w.slice(0,4)))out.push(w.slice(0,4));
+  return out.slice(0,n||16)}
+function parseDate(t,base){t=String(t||'').trim();
+  const m=/^(\d{1,2})(?:[.\-/ ](\d{1,2})(?:[.\-/ ](\d{2,4}))?)?$/.exec(t);if(!m)return null;
+  const b=base.split('-').map(Number);let y=m[3]?+m[3]:b[0];if(y<100)y+=2000;
+  const mo=m[2]?+m[2]:b[1],d=+m[1];const dt=new Date(Date.UTC(y,mo-1,d));
+  if(dt.getUTCMonth()!==mo-1||dt.getUTCDate()!==d)return null;return dt.toISOString().slice(0,10)}
+const ddmm=iso=>iso?iso.slice(8,10)+'.'+iso.slice(5,7)+'.'+iso.slice(0,4):'';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const SCH=new Map(),ST=new Map(),KO=new Map();
+const nm=id=>(SCH.get(id)||{n:id?'счёт '+id:''}).n;
+const stn=id=>(ST.get(id)||{n:id?'статья '+id:''}).n;
+let S={rows:[],recent:[],data:null,s1:null,rz:[]};          // rz — решения «Разобрать» (пакет 2)
+let MSG=null;                                             // последний разбор сообщения (для кадров и проверки)
+let R=null;                                               // строка ввода
+const F={data:$('v_data'),kop:$('v_kop'),s1:$('v_s1'),st:$('v_st'),s2:$('v_s2'),k:$('v_k'),p:$('v_p'),msg:$('v_msg'),mn:$('v_mn'),rm:$('v_rm'),pr:$('v_pr')};
+/* 28.11 (собрание 27.11): месяц начисления, распределение и приёмка МойСклада, которую оплачивает расход */
+const PRM=new Map(),PRT=new Map();
+function prTxt(x){return x[1]+' · '+x[2].slice(8,10)+'.'+x[2].slice(5,7)+' · '+x[3]+' · '+rub(x[4])+(x[5]<x[4]?' · не оплачено '+rub(x[4]-x[5]):' · оплачена')}
+function prInit(){const dl=$('prList');if(!dl)return;const L=D.priemki||[];dl.innerHTML=L.map(x=>{const t=prTxt(x);PRM.set(t,x[0]);PRT.set(x[0],t);return '<option value="'+esc(t)+'"></option>'}).join('')}
+function prId(){const t=F.pr.value.trim();if(!t)return null;if(PRM.has(t))return PRM.get(t);
+  const n=t.split(' ')[0];const L=(D.priemki||[]).filter(x=>x[1]===n||x[1]===n.padStart(5,'0'));return L.length===1?L[0][0]:undefined}
+
+function save(){try{localStorage.setItem(QLS,JSON.stringify(S))}catch(e){}}
+function load(){try{const x=JSON.parse(localStorage.getItem(QLS)||'null');if(x&&Array.isArray(x.rows))S=Object.assign(S,x)}catch(e){}if(!Array.isArray(S.rz))S.rz=[]}
+const kto=()=>'фин. менеджер';   // имён не вводим (Андрей 26.11): вносит фин. менеджер
+/* вид строки: перевод · знак суммы · иначе по статье (своей или подсказанной); null — ещё не ясно */
+function znakR(){const s=parseSum(F.kop.value)||{};return s.plus?'prihod':s.minus?'rashod':null}
+function vidR(){if(R.per)return 'perevod';const z=znakR();if(z)return z;
+  const st=R.ch.length?(R.ch.find(c=>c.st)||{}).st:R.st;const g=(ST.get(st)||{}).g;return g==='income'?'prihod':g==='outcome'?'rashod':null}
+const gr=v=>v==='prihod'?'income':v==='rashod'?'outcome':v==='perevod'?'transfer':null;
+
+/* ---------- подсказка статьи: контрагент → счёт + назначение → назначение → первое слово → счёт ---------- */
+const gOk=(s,g)=>s&&!s.x&&(g?s.g===g:(s.g==='income'||s.g==='outcome'));   // g null — приход или расход, по истории
+function topOf(c,g){if(!c)return null;let b=null,bn=0;for(const k in c){const s=ST.get(+k);if(!gOk(s,g))continue;if(c[k]>bn){b=+k;bn=c[k]}}return b}
+function hintSt(kid,s1,text,vid){const g=gr(vid),kl=klyuch(text);
+  return (kid&&topOf(D.k2s[kid],g))||(kl&&topOf(D.ss2s[s1+'|'+kl],g))||(kl&&topOf(D.n2s[kl],g))||(text&&stPoSlovam(stemy(text),g))||
+    (kl&&topOf((D.n1s||{})[kl.split(' ')[0]],g))||topOf(D.s2s[s1],g)||null}
+
+/* ---------- модели по истории ручных операций (D.ist): слова → счёт, слова → статья ---------- */
+const V_SN=new Set(['снял','сним','снят','выда','выве']),V_PL=new Set(['поло','попо','внес','заки']),V_PR=new Set(['полу','прод']);
+const V_ALL=new Set([...V_SN,...V_PL,...V_PR,'отда','опла','пере','купи']);
+let MOD=null;
+/* счёт по словам — наивный Байес: документы — назначения ручных операций (у расхода и прихода — счёт операции со всеми словами,
+   у «снял» — счёт списания, у «положил» — счёт зачисления, без глаголов) и названия счетов; статья — доли статей у слова */
+function modeli(){if(MOD)return MOD;const T={},sn={},pl={},cnt={},N={},docs={},voc=new Set();let ND=0;
+  const add=(m,t,a,w)=>{const c=m[t]||(m[t]={});c[a]=(c[a]||0)+w};
+  const doc=(a,ts,w)=>{if(!SCH.has(a)||SCH.get(a).a||!ts.length)return;const c=cnt[a]||(cnt[a]={});docs[a]=(docs[a]||0)+1;ND++;
+    for(const t of ts){c[t]=(c[t]||0)+w;N[a]=(N[a]||0)+w;voc.add(t)}};
+  for(const s of D.scheta)doc(s.id,stemy(s.n),2);
+  for(const [,g,s1,s2,st,,,sm] of (D.ist||[])){if(!sm)continue;const ts=sm.split(' ');
+    if(g==='t'){const bez=ts.filter(t=>!V_ALL.has(t));
+      if(ts.some(t=>V_SN.has(t))){doc(s1,bez,1);sn[s2]=(sn[s2]||0)+1}else if(ts.some(t=>V_PL.has(t))){doc(s2,bez,1);pl[s1]=(pl[s1]||0)+1}}
+    else{doc(s1,ts,1);if(st&&!(ST.get(st)||{}).x)for(const t of ts)if(!V_ALL.has(t))add(T,t,st,1)}}
+  const top=c=>{let b=null,n=0;for(const k in c)if(c[k]>n&&SCH.has(+k)&&!SCH.get(+k).a){b=+k;n=c[k]}return b};
+  return MOD={T,nb:{cnt,N,docs,ND,V:voc.size,voc},nal_sn:top(sn),nal_pl:top(pl)}}
+function ochki(m,ts,ok){const sc={};for(const t of ts){const c=m[t];if(!c)continue;let tot=0,mx=0;for(const a in c){tot+=c[a];if(c[a]>mx)mx=c[a]}
+    const w=Math.min(1,tot/3);for(const a in c)if(!ok||ok(+a))sc[a]=(sc[a]||0)+w*c[a]/tot}
+  return Object.keys(sc).map(Number).sort((a,b)=>sc[b]-sc[a]).map(a=>[a,sc[a]])}
+function schetaPoSlovam(ts){const {nb}=modeli(),tt=ts.filter(t=>nb.voc.has(t));if(!tt.length)return [];const lp={};let mx=-1e9;
+  for(const a in nb.docs){let x=Math.log((nb.docs[a]+1)/(nb.ND+1));const c=nb.cnt[a];for(const t of tt)x+=Math.log(((c[t]||0)+0.1)/(nb.N[a]+0.1*nb.V));lp[a]=x;if(x>mx)mx=x}
+  let z=0;for(const a in lp){lp[a]=Math.exp(lp[a]-mx);z+=lp[a]}
+  const sc={};for(const a in lp){const im=imya(+a);sc[a]=0.6*lp[a]/z+(im.length?0.4*im.filter(t=>ts.includes(t)).length/im.length:0)}   // + доля слов названия
+  return Object.keys(sc).map(Number).sort((a,b)=>sc[b]-sc[a]).map(a=>[a,sc[a]])}
+const OBSHCH=new Set(['банк','дебе','кред','бизн','теку','счет','карт','blac']);
+const IMYA={};const imya=a=>IMYA[a]||(IMYA[a]=stemy(nm(a)).filter(t=>!OBSHCH.has(t)));
+function stPoSlovam(ts,g){const r=ochki(modeli().T,ts.filter(t=>!V_ALL.has(t)),a=>gOk(ST.get(a),g));return r.length&&r[0][1]>=0.5?r[0][0]:null}
+function inc(map,key,st){if(!key||!st)return;const c=map[key]||(map[key]={});c[st]=(c[st]||0)+1}
+function learn(e){if(e.deystvie==='otmena')return;
+  if(e.vid==='perevod'){(D.ist||(D.ist=[])).push([0,'t',e.s1,e.s2,0,e.kop,klyuch(e.p),stemy(e.p).join(' ')]);return}
+  const kl=klyuch(e.p);
+  for(const c of (e.ch.length?e.ch:[e])){const kid=c.kid||e.kid;inc(D.k2s,kid,c.st);if(kl){inc(D.ss2s,e.s1+'|'+kl,c.st);inc(D.n2s,kl,c.st);if(kl.split(' ')[0].length>=3)inc(D.n1s||(D.n1s={}),kl.split(' ')[0],c.st)}inc(D.s2s,e.s1,c.st)}}
+/* второй счёт перевода: частота пары у первого счёта (половина — среди сумм той же круглости до 100 ₽) + та же пара с тем же
+   назначением + перевод с тем же назначением в этом сеансе; переводов с первого счёта нет — обратные пары. doId — проверка по истории */
+const kruglo=k=>k%10000===0;
+function paraKand(s1,kop,kl,doId){const f={},fr={},fk={},rv={},sc={};let N=0,NR=0,NK=0,NV=0;
+  for(const h of (D.ist||[])){if(h[1]!=='t'||(doId&&(!h[0]||h[0]>=doId)))continue;const [,,a1,a2,,k,hk]=h;
+    if(a1===s1){f[a2]=(f[a2]||0)+1;N++;if(kop&&kruglo(k)===kruglo(kop)){fr[a2]=(fr[a2]||0)+1;NR++}if(kl&&hk===kl){fk[a2]=(fk[a2]||0)+1;NK++}}
+    if(a2===s1){rv[a1]=(rv[a1]||0)+1;NV++}}
+  if(N)for(const a in f)sc[a]=0.5*f[a]/N+(NR?0.5*(fr[a]||0)/NR:0);else for(const a in rv)sc[a]=0.7*rv[a]/NV;
+  for(const a in fk)sc[a]=(sc[a]||0)+fk[a]/NK;
+  if(kl&&!doId){const seen=new Set();for(const x of S.rows.slice(-10))if(x.vid==='perevod'&&x.s2&&klyuch(x.p)===kl&&!seen.has(x.s2)){seen.add(x.s2);sc[x.s2]=(sc[x.s2]||0)+0.5}}
+  return Object.keys(sc).map(Number).filter(a=>a!==s1&&SCH.has(a)&&!SCH.get(a).a).sort((a,b)=>sc[b]-sc[a])}
+function topPara(s1){return paraKand(s1,(parseSum(F.kop.value)||{}).kop||0,klyuch(F.p.value))[0]||null}
+
+/* ---------- «вставить сообщение»: текст из чата → дата, сумма, вид, счёт(а), статья ---------- */
+const NUMRE=/(?<![\d*хx×a-zA-Zа-яА-ЯёЁ])(\d{1,3}(?:[ \u00a0]\d{3})+|\d+)(?:[.,](\d{1,2}))?(?![\d*хx×])/g;
+const EDIN=/^\s?(шт|%|мм|см|кг|м(?![а-я]))/i;
+const VERB=/(сн[яи]л|снят|выдач|вывел|положил|пополнил|вн[её]с|закинул|перев[её]л|отдал|оплатил|купил|получил|продал)/;
+function kontrSchet(kid){const c=D.k2sch&&D.k2sch[kid];if(!c)return null;let b=null,n=0,t=0;
+  for(const a in c){t+=c[a];if(c[a]>n){n=c[a];b=+a}}return n>=3&&n/t>=0.6&&SCH.has(b)&&!SCH.get(b).a?b:null}
+function luchshiy(ts,dz){const r=schetaPoSlovam(ts);if(!r.length||r[0][1]<0.3)return null;
+  if(dz){const x=r.find(a=>a[0]===dz);if(x&&x[1]>=0.5*r[0][1])return dz}return r[0][0]}
+function razbor(text,dz){const t0=String(text||'').replace(/\s+/g,' ').trim();if(!t0)return null;
+  const r={p:t0,data:null,kop:null,vid:null,s1:null,s2:null,g:null};
+  const dm=/\[(\d{1,2})\.(\d{1,2})\.(\d{2,4})/.exec(t0);if(dm)r.data=parseDate(dm[1]+'.'+dm[2]+'.'+dm[3],D.segodnya);
+  const body=t0.replace(PRF_VSE,' / ').replace(/\[\s*фотография\s*\]/gi,' '),lb=norm(body);
+  const nums=[];for(const m of body.matchAll(NUMRE)){const e=m.index+m[0].length;if(EDIN.test(body.slice(e,e+4)))continue;
+    let v=parseInt(m[1].replace(/[ \u00a0]/g,''),10)*100+(m[2]?parseInt((m[2]+'0').slice(0,2),10):0);
+    if(/^\s?к(?![а-яa-z])/i.test(body.slice(e,e+3)))v*=1000;if(v>0)nums.push({v,i:m.index,e})}
+  const vm=VERB.exec(lb);let n=null;
+  if(vm){const ve=vm.index+vm[0].length,a=nums.find(x=>x.i>=ve&&x.i-ve<=4),b=nums.filter(x=>x.e<=vm.index&&vm.index-x.e<=6).pop();
+    n=a&&b?(a.v>=b.v?a:b):(a||b||null)}   // «13865 оплатил 5 канистр» — сумма больше штук
+  n=n||nums[0]||null;if(n)r.kop=n.v;
+  const v=vm?vm[1]:'',vse=stemy(body);
+  const posle=(slovo,ot,posl)=>{const i=posl?lb.lastIndexOf(' '+slovo+' '):lb.indexOf(' '+slovo+' ',ot||0);return i<0||i<(ot||0)?'':lb.slice(i+slovo.length+2)};
+  const M=modeli();
+  const bezV=vse.filter(t=>!V_ALL.has(t));
+  if(/^сн|^выдач/.test(v)){r.vid='perevod';r.s1=luchshiy(bezV,dz);r.s2=M.nal_sn}
+  else if(/^полож|^попол|^вн|^закин/.test(v)){r.vid='perevod';const na=stemy(posle('на',vm.index));r.s1=M.nal_pl;
+    r.s2=luchshiy(na.length?na:bezV);const pk=r.s1&&paraKand(r.s1,r.kop||0,klyuch(t0))[0];   // слова и история пар согласны — берём пару
+    if(pk&&pk!==r.s2){const sl=schetaPoSlovam(na.length?na:bezV),x=sl.find(a=>a[0]===pk);if(x&&sl.length&&x[1]>=0.6*sl[0][1])r.s2=pk}}
+  else if(/^перев|^вывел/.test(v)&&/ на /.test(lb.slice(vm.index))){r.vid='perevod';const na=posle('на',vm.index,true),s=posle('с',0);   // «с X … на Y»: последнее «на»
+    r.s2=luchshiy(stemy(na));r.s1=luchshiy(stemy(s.split(' на ')[0]),dz)}
+  else{r.s1=luchshiy(vse,dz);r.g=/^получ|^продал/.test(v)?'prihod':null}
+  if(r.s1&&r.s1===r.s2)r.s2=null;
+  return r}
+function primenit(r,polnyj){F.p.value=r.p;F.msg.value=r.p;
+  if(!r.kop){rehint();msg('Сообщение — в пометку: суммы в нём нет','');return}
+  if(r.data)F.data.value=ddmm(r.data);
+  if(polnyj||!parseSum(F.kop.value))F.kop.value=rub(r.kop);
+  if(r.vid==='perevod'){if(r.s1){R.s1=r.s1;F.s1.value=nm(r.s1)}if(!R.per)setPer(true);
+    if(r.s2&&r.s2!==R.s1){R.s2=r.s2;R.s2Auto=false;F.s2.value=nm(r.s2);F.s2.classList.add('hint')}else{R.s2Auto=true;rehint()}}
+  else{if(R.per)setPer(false);if(r.s1&&!R.s1Sam&&r.s1!==R.s1){R.s1=r.s1;F.s1.value=nm(r.s1);F.s1.classList.add('hint')}R.gMsg=r.g}
+  rehint();MSG={r,R:{data:parseDate(F.data.value,D.segodnya),kop:(parseSum(F.kop.value)||{}).kop,per:R.per,s1:R.s1,s2:R.s2,st:R.per?null:R.st}};
+  msg('Разобрал сообщение: <b>'+esc(F.data.value)+' · '+(R.per?'перевод '+esc(nm(R.s1))+' → '+esc(nm(R.s2)):esc(nm(R.s1))+' · '+esc(stn(R.st)))+' · '+rub(r.kop)+
+    '</b>. Проверьте — <b>Enter</b> запишет','');F.kop.focus();F.kop.select()}
+const odnaStroka=t=>String(t||'').replace(/\s*[\r\n]+\s*/g,' ').trim();
+const ESLI_CHISLO=/^\s*[+\-−]?\s*[\d\s\u00a0]+([.,]\d{0,2})?\s*$/;
+
+/* ---------- списки выбора ---------- */
+const DD=$('dd');let P=null;
+function filt(items,q,lim){const t=norm(q).split(/\s+/).filter(Boolean);const out=[];
+  for(const it of items){const n=it._n||(it._n=norm(it.n));if(t.every(w=>n.includes(w))){out.push(it);if(out.length>=lim)break}}return out}
+function schetaPoryadok(){const seen=new Set(),out=[];for(const id of S.recent){const s=SCH.get(id);if(s&&!seen.has(id)){seen.add(id);out.push(s)}}
+  for(const s of D.scheta)if(!seen.has(s.id))out.push(s);return out}
+function statyiPoryadok(vid,kid){const g=gr(vid),ves={};
+  for(const c of [D.k2s[kid],D.s2s[R&&R.s1]])if(c)for(const k in c)ves[k]=(ves[k]||0)+c[k];
+  return D.statyi.filter(s=>g?s.g===g:(s.g==='income'||s.g==='outcome')).sort((a,b)=>(ves[b.id]||0)-(ves[a.id]||0)||a.n.localeCompare(b.n,'ru'))}
+const ISTOCH={s1:()=>schetaPoryadok(),s2:()=>schetaPoryadok().filter(s=>s.id!==R.s1),k:()=>D.kontr,
+  st:()=>statyiPoryadok(znakR(),R.kid)};
+function openPick(inp,kind,onPick,vse){P={inp,kind,onPick,list:[],on:0,vse:!!vse};refreshPick()}   // 28.11 vse — весь список сразу (собрание 27.11: «поставщика выбрать из списка»)
+function refreshPick(){if(!P)return;const q=P.inp.value;const src=typeof P.kind==='function'?P.kind():ISTOCH[P.kind]();
+  P.list=P.vse?src.filter(x=>!x.a).slice().sort((a,b)=>a.n.localeCompare(b.n,'ru')).slice(0,400):q.trim()?filt(src,q,8):[];P.on=0;
+  if(!P.list.length){DD.style.display='none';return}
+  DD.innerHTML=P.list.map((it,i)=>'<div data-i="'+i+'"'+(i?'':' class="on"')+'>'+esc(it.n)+(it.a?'<small>архив</small>':'')+'</div>').join('');
+  const r=P.inp.getBoundingClientRect();DD.style.left=(r.left+scrollX)+'px';DD.style.top=(r.bottom+scrollY+3)+'px';DD.style.minWidth=r.width+'px';DD.style.display='block'}
+function moveOn(d){if(!P||!P.list.length)return;P.on=(P.on+d+P.list.length)%P.list.length;
+  [...DD.children].forEach((el,i)=>el.classList.toggle('on',i===P.on))}
+function closeDD(){P=null;DD.style.display='none'}
+function pickOn(){if(!P||!P.list.length)return false;const it=P.list[P.on],p=P;closeDD();p.inp.value=it.n;p.onPick(it);return true}
+DD.addEventListener('mousedown',e=>{const el=e.target.closest('[data-i]');if(!el||!P)return;e.preventDefault();P.on=+el.dataset.i;pickOn()});
+
+/* ---------- строка ввода ---------- */
+function newRow(keep){R={np:uuid(),nomer:uuid(),deystvie:'novaya',per:false,s1:keep?S.s1:null,s1Sam:false,s2:null,s2Auto:true,st:null,stAuto:true,sp:null,
+  kid:null,ch:[],dubl:0,warn:false,kas:0,cif:0,t0:0,dataQ:0};
+  F.data.value=ddmm(S.data||D.segodnya);F.kop.value='';F.s1.value=R.s1?nm(R.s1):'';F.s2.value='';F.k.value='';F.p.value='';F.msg.value='';F.mn.value='';F.rm.value='1';F.pr.value='';
+  F.s1.classList.remove('hint');setPer(false);renderChasti();rehint();msg('')}
+function perKnopka(){const b=$('k_per');if(b)b.textContent=R&&R.per?'Не перевод, обычная операция':'Перевод между счетами'}
+function setPer(on){R.per=on;$('row').classList.toggle('per',on);$('hdr').classList.toggle('per',on);perKnopka();if(!on){R.s2=null;F.s2.value=''}else R.s2Auto=true;rehint()}
+function rehint(){if(!R)return;
+  if(R.per){R.st=D.perevod_st;if(R.s2Auto&&R.s1){const t=topPara(R.s1);R.s2=t;F.s2.value=t?nm(t):'';F.s2.classList.toggle('hint',!!t)}
+    F.kop.classList.remove('plus');return}
+  if(R.stAuto){R.st=(R.s1||F.p.value)?hintSt(R.kid,R.s1,F.p.value,znakR()||R.gMsg||null):null;R.sp=R.st;F.st.value=R.st?stn(R.st):'';F.st.classList.toggle('hint',!!R.st)}
+  R.ch.forEach((c,i)=>{if(c.stAuto){c.st=R.s1?hintSt(c.kid||R.kid,R.s1,F.p.value,znakR()||vidR()):null;c.sp=c.st;const el=$('c_st_'+i);if(el){el.value=c.st?stn(c.st):'';el.classList.toggle('hint',!!c.st)}}});
+  F.kop.classList.toggle('plus',vidR()==='prihod')}
+function msg(t,cls){const m=$('msg');m.className='msg'+(cls?' '+cls:'');m.innerHTML=t||''}
+
+function renderChasti(){const box=$('chasti');
+  box.innerHTML=R.ch.map((c,i)=>'<div class="chast"><span class="n">'+(i+1)+'</span>'+
+    '<input class="f sum" id="c_kop_'+i+'" data-ch="'+i+'" data-f="kop" value="'+(c.kop?rub(c.kop):'')+'" placeholder="часть" autocomplete="off">'+
+    '<input class="f'+(c.stAuto&&c.st?' hint':'')+'" id="c_st_'+i+'" data-ch="'+i+'" data-f="st" value="'+esc(c.st?stn(c.st):'')+'" placeholder="статья части" autocomplete="off">'+
+    '<input class="f" id="c_k_'+i+'" data-ch="'+i+'" data-f="k" value="'+esc(c.k||'')+'" placeholder="контрагент части" autocomplete="off"></div>').join('')}
+function addPart(){const tot=(parseSum(F.kop.value)||{kop:0}).kop;readParts();
+  const ost=tot-R.ch.reduce((a,c)=>a+(c.kop||0),0);
+  R.ch.push({kop:R.ch.length&&ost>0?ost:0,st:null,stAuto:true,sp:null,kid:null,k:''});renderChasti();rehint();
+  const el=$('c_kop_'+(R.ch.length-1));el.focus();el.select()}
+function readParts(){R.ch.forEach((c,i)=>{const el=$('c_kop_'+i);if(el){const s=parseSum(el.value);c.kop=s?s.kop:0}
+  const k=$('c_k_'+i);if(k){c.k=k.value.trim();if(c.kid&&(KO.get(c.kid)||{}).n!==c.k)c.kid=null}})}
+
+function pohozhie(e){const out=[],t=Date.parse(e.data),near=d=>Math.abs((Date.parse(d)-t)/864e5)<=2;
+  const mine=[e.s1,e.s2].filter(Boolean),hit=(a,b)=>a.some(x=>b.includes(x));
+  const otm=new Set(S.rows.filter(x=>x.deystvie==='otmena').map(x=>x.nomer));
+  for(const [,d,s1,s2,kop,op] of D.lenta)if(kop===e.kop&&near(d)&&hit(mine,[s1,s2]))out.push('ФТ '+ddmm(d)+' · '+esc(nm(s1))+(s2?' → '+esc(nm(s2)):'')+' · '+rub(kop)+(op?' · «'+esc(op)+'»':''));
+  for(const x of D.svoi)if(!x.ot&&x.nomer!==e.nomer&&x.kop===e.kop&&near(x.d)&&hit(mine,[x.s1,x.s2]))out.push('в базе '+ddmm(x.d)+' · '+esc(nm(x.s1))+' · '+rub(x.kop));
+  for(const x of S.rows)if(x.nomer!==e.nomer&&!otm.has(x.nomer)&&x.deystvie!=='otmena'&&x.kop===e.kop&&near(x.data)&&hit(mine,[x.s1,x.s2]))out.push('в пачке '+ddmm(x.data)+' · '+esc(nm(x.s1))+' · '+rub(x.kop));
+  return out}
+
+function commit(){closeDD();readParts();
+  const d=parseDate(F.data.value,S.data||D.segodnya);if(!d){msg('Дата: дд, дд.мм или дд.мм.гггг','err');F.data.focus();return}
+  const sm=parseSum(F.kop.value);if(!sm){msg('Сумма: число больше нуля, копейки через запятую','err');F.kop.focus();return}
+  if(!R.s1){msg('Счёт: начните писать название или последние цифры *1234','err');F.s1.focus();return}
+  if(R.per&&(!R.s2||R.s2===R.s1)){msg('Перевод: выберите счёт зачисления, не тот же','err');F.s2.focus();return}
+  const vid=vidR()||'rashod';
+  const kt=F.k.value.trim();if(R.kid&&(KO.get(R.kid)||{}).n!==kt)R.kid=null;
+  if(R.ch.length){const s=R.ch.reduce((a,c)=>a+(c.kop||0),0);
+    if(R.ch.some(c=>!c.kop||!c.st)){msg('Части: у каждой сумма и статья','err');return}
+    if(s!==sm.kop){msg('Части: '+rub(s)+' из '+rub(sm.kop)+' — не сходится','err');return}
+    if(R.ch.some(c=>(ST.get(c.st)||{}).g!==gr(vid))){msg('Части: статья не для '+(vid==='prihod'?'прихода':'расхода'),'err');return}}
+  else if(!R.per){if(!R.st){msg('Статья: выберите из списка','err');F.st.focus();return}
+    if((ST.get(R.st)||{}).g!==gr(vid)){msg('Статья «'+esc(stn(R.st))+'» — не для '+(vid==='prihod'?'прихода':'расхода')+'. Уберите знак перед суммой — вид возьмётся по статье','err');F.st.focus();return}}
+  const mnV=F.mn.value||null,mn=mnV&&mnV!==d.slice(0,7)?mnV:null,rm=+F.rm.value>1?+F.rm.value:null,pr=prId();
+  if(pr===undefined){msg('Приёмка: выберите из списка (номер приёмки или поставщик)','err');F.pr.focus();return}
+  if(pr&&vid!=='rashod'){msg('Приёмку оплачивает только расход','err');F.pr.focus();return}
+  if(R.per&&(mn||rm)){msg('У перевода нет месяца начисления','err');return}
+  const e={np:R.np,nomer:R.nomer,deystvie:R.deystvie,vid,data:d,s1:R.s1,s2:R.per?R.s2:null,kop:sm.kop,mn,rm,pr,
+    st:R.ch.length?null:(R.per?D.perevod_st:R.st),kid:R.kid,k:kt||null,p:F.p.value.trim()||null,
+    ch:R.ch.map(c=>({kop:c.kop,st:c.st,kid:c.kid,k:c.k||null,sp:c.sp})),dubl:0,kto:kto(),kogda:MSK(),
+    sp:R.per?null:R.sp,kas:R.kas,cif:R.cif,sek:R.t0?Math.round((Date.now()-R.t0)/100)/10:0,baza_v:R.baza_v||null,prichina:R.prichina||null};
+  if(R.warn!=='da'){const ph=pohozhie(e);
+    if(ph.length){R.warn='zhdu';msg('<b>Похоже, такая уже есть:</b> '+ph.slice(0,3).join('; ')+'.<br><button class="btn sm acc" data-v="da">Это другая, добавить</button><button class="btn sm" data-v="net">Убрать строку</button>','warn');return}}
+  else e.dubl=1;
+  const i=S.rows.findIndex(x=>x.np===e.np);if(i>=0)S.rows[i]=e;else S.rows.push(e);
+  learn(e);S.recent=[e.s1,e.s2,...S.recent].filter((x,j,a)=>x&&a.indexOf(x)===j).slice(0,20);
+  S.data=d;S.s1=e.s1;save();render();newRow(true);msg('Добавлено: '+ddmm(d)+' · '+esc(nm(e.s1))+' · '+(vid==='prihod'?'+':vid==='rashod'?'−':'')+rub(e.kop),'');F.kop.focus()}
+
+function loadRow(x,deystvie,np){R={np,nomer:x.nomer,deystvie,per:x.vid==='perevod',s1:x.s1,s1Sam:true,s2:x.s2,s2Auto:false,st:x.st,stAuto:false,sp:x.sp||null,dataQ:0,
+  kid:x.kid,ch:(x.ch||[]).map(c=>({kop:c.kop,st:c.st,stAuto:false,sp:c.sp||null,kid:c.kid,k:c.k||''})),dubl:0,warn:false,kas:0,cif:0,t0:0,
+  baza_v:x.baza_v||null};
+  F.data.value=ddmm(x.data);F.kop.value=(x.vid==='prihod'?'+':x.vid==='rashod'?'−':'')+rub(x.kop);F.s1.value=nm(x.s1);F.s2.value=x.s2?nm(x.s2):'';
+  F.st.value=x.st?stn(x.st):'';F.st.classList.remove('hint');F.k.value=x.k||'';F.p.value=x.p||'';F.mn.value=x.mn||'';F.rm.value=String(x.rm||1);F.pr.value=x.pr?(PRT.get(x.pr)||''):'';
+  $('row').classList.toggle('per',R.per);$('hdr').classList.toggle('per',R.per);perKnopka();renderChasti();
+  msg(deystvie==='pravka'?'Исправляете запись: поправьте поля и нажмите «Добавить». «Очистить» — не исправлять':'Строка снова в полях ввода: «Добавить» вернёт её в список','');
+  F.kop.focus();F.kop.select()}
+const izBazy=x=>({nomer:x.nomer,vid:x.vid,data:x.d,s1:x.s1,s2:x.s2,kop:x.kop,st:x.st,kid:x.kid,k:x.k,p:x.p,ch:x.ch||[],baza_v:x.v,mn:x.mn||null,rm:x.rm||null,pr:x.pr||null});
+function poslednyaya(nomer){for(let i=S.rows.length-1;i>=0;i--)if(S.rows[i].nomer===nomer)return S.rows[i];return null}
+function deystvie(kak,np,izb){
+  if(izb){const x=D.svoi.find(y=>y.nomer===np);if(!x)return;const b=poslednyaya(x.nomer)||izBazy(x);
+    if(kak==='isp')loadRow(b,'pravka',uuid());else otmena(b);return}
+  const e=S.rows.find(x=>x.np===np);if(!e)return;
+  if(kak==='isp'){if(!e.saved){S.rows=S.rows.filter(x=>x.np!==np);loadRow(e,e.deystvie,e.np)}else loadRow(e,'pravka',uuid());save();render();return}
+  if(kak==='ubrat'){S.rows=S.rows.filter(x=>x.np!==np);save();render();msg('Строка убрана');return}
+  if(kak==='otm')otmena(e)}
+function otmena(b){const e=Object.assign({},b,{np:uuid(),deystvie:'otmena',kto:kto(),kogda:MSK(),saved:false,fayl:null,dubl:0,kas:0,cif:0,sek:0});
+  S.rows.push(e);save();render();msg('Отмена записи '+ddmm(b.data)+' · '+rub(b.kop)+' добавлена, уйдёт в учёт по кнопке «Отправить»','')}
+
+/* ---------- списки ---------- */
+function stroka(x,knopki,cls){const sum=x.vid==='prihod'?'+'+rub(x.kop):x.vid==='perevod'?rub(x.kop):'−'+rub(x.kop);
+  const st=x.vid==='perevod'?'перевод':(x.ch&&x.ch.length?x.ch.map(c=>esc(stn(c.st))+' '+rub(c.kop)).join('<br>'):esc(stn(x.st)));
+  return '<tr class="'+(cls||'')+'"><td>'+ddmm(x.data||x.d)+'</td><td class="num '+(x.vid==='prihod'?'plus':x.vid==='perevod'?'per':'')+'">'+sum+'</td>'+
+    '<td>'+esc(nm(x.s1))+(x.s2?' → '+esc(nm(x.s2)):'')+'</td><td>'+st+'</td><td>'+esc(x.k||'')+'</td><td class="pm" title="'+esc(x.p||'')+'">'+esc(x.p||'')+'</td>'+knopki+'</tr>'}
+function render(){const otm=new Set(S.rows.filter(x=>x.deystvie==='otmena').map(x=>x.nomer));
+  const posl={};S.rows.forEach(x=>posl[x.nomer]=x.np);
+  const html=S.rows.slice().reverse().map(x=>{const last=posl[x.nomer]===x.np;
+    const tags=(x.deystvie==='pravka'?'<span class="tag w">исправление</span>':x.deystvie==='otmena'?'<span class="tag b">отмена</span>':'')+
+      (x.prinyato?'<span class="tag ok">в учёте</span>':x.saved?'<span class="tag ok">сохранено файлом</span>':'<span class="tag w">не отправлено</span>')+(x.dubl?'<span class="tag w">похожая, но другая</span>':'');
+    let kn='';if(last){if(!x.saved)kn='<button class="btn sm" data-a="isp" data-np="'+x.np+'">Исправить</button> <button class="btn sm" data-a="ubrat" data-np="'+x.np+'">Убрать</button>';
+      else if(x.deystvie!=='otmena')kn='<button class="btn sm" data-a="isp" data-np="'+x.np+'">Исправить</button> <button class="btn sm" data-a="otm" data-np="'+x.np+'">Отменить</button>'}
+    return stroka(x,'<td>'+tags+'</td><td class="act">'+kn+'</td>',(x.deystvie==='otmena'||(otm.has(x.nomer)&&!last))?'otm':'')}).join('');
+  $('spisok').innerHTML=html||'<tr><td colspan="8" class="empty">Пока пусто: заполните поля выше и нажмите «Добавить»</td></tr>';
+  const ns=S.rows.filter(x=>!x.saved).length;$('vpachke').textContent=ns?'· не отправлено '+ns:'';
+  const nz=S.rz.filter(x=>!x.saved).length;   // + решения «Разобрать»
+  $('schetchik').textContent=ns+nz?'не отправлено: '+(ns?'строк '+ns:'')+(ns&&nz?' · ':'')+(nz?'статей '+nz:''):'';$('sohranit').disabled=!(ns+nz);const ob=$('otpravit');if(ob)ob.disabled=!(ns+nz);
+  const vid=D.svoi.filter(x=>!x.ot);   // отменённые не показываем (Андрей 27.11: «непонятен раздел»)
+  $('svoi').innerHTML=vid.slice().reverse().map(x=>{const v=Object.assign(izBazy(x),{});const vp=poslednyaya(x.nomer);
+    const kn=x.ot?'<span class="tag b">отменена</span>':(vp?'<span class="tag w">'+(vp.deystvie==='otmena'?'отмена':'исправление')+' ждёт отправки</span>':
+      '<button class="btn sm" data-a="isp" data-b="1" data-np="'+x.nomer+'">Исправить</button> <button class="btn sm" data-a="otm" data-b="1" data-np="'+x.nomer+'">Отменить</button>');
+    return stroka(v,'<td>'+(x.v>1?'<span class="tag">исправлена</span>':'')+'</td><td class="act">'+kn+'</td>',x.ot?'otm':'')}).join('')||'<tr><td colspan="8" class="empty">Пока ничего не внесено</td></tr>';
+  $('vbaze').textContent=vid.length?String(vid.length):''}
+document.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(b)deystvie(b.dataset.a,b.dataset.np,b.dataset.b==='1')});
+
+function sohranit(){const nov=S.rows.filter(x=>!x.saved).concat(S.rz.filter(x=>!x.saved));if(!nov.length){msg('Нечего сохранять');return}
+  const p={v:1,pachka:uuid(),kto:kto(),sozdana:MSK(),zapisi:nov.map(x=>{const y=Object.assign({},x);delete y.saved;delete y.fayl;return y})};
+  if($('v_ft')&&!$('v_ft').checked)p.bez_kopii=1;
+  const imya='pachka_'+p.sozdana.replace(/[-: ]/g,'').slice(0,14)+'_'+p.pachka.slice(0,8)+'.json';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,1)],{type:'application/json'}));a.download=imya;
+  document.body.appendChild(a);a.click();a.remove();
+  nov.forEach(x=>{x.saved=true;x.fayl=imya});save();render();
+  const t='Пачка сохранена файлом <b>'+esc(imya)+'</b>: записей '+nov.length+'. Приём в базу — prinyat.py';msg(t,'');
+  if(typeof rzPosleSohraneniya==='function')rzPosleSohraneniya(t)}
+
+/* ---------- клавиатура ---------- */
+const PICK={s1:F.s1,s2:F.s2,st:F.st,k:F.k};
+function onPick(kind,it){
+  if(kind==='s1'){R.s1=it.id;R.s1Sam=true;F.s1.classList.remove('hint');if(R.per&&R.s2===R.s1){R.s2=null;F.s2.value='';R.s2Auto=true}rehint()}
+  else if(kind==='s2'){R.s2=it.id;R.s2Auto=false;F.s2.classList.remove('hint')}
+  else if(kind==='st'){R.st=it.id;R.stAuto=false;F.st.classList.remove('hint')}
+  else if(kind==='k'){R.kid=it.id;const a=!R.s1Sam&&!R.per&&kontrSchet(it.id);
+    if(a&&a!==R.s1){R.s1=a;F.s1.value=nm(a);F.s1.classList.add('hint')}rehint()}}
+for(const [kind,inp] of Object.entries(PICK)){
+  inp.addEventListener('input',()=>{if(kind==='s1'){R.s1=null;inp.classList.remove('hint')}else if(kind==='s2'){R.s2=null;R.s2Auto=false;inp.classList.remove('hint')}
+    else if(kind==='st'){R.stAuto=false;R.st=null;inp.classList.remove('hint')}else if(kind==='k'){R.kid=null;rehint()}
+    openPick(inp,kind,it=>onPick(kind,it))});
+  inp.addEventListener('focus',()=>inp.select())}
+F.kop.addEventListener('input',()=>{rehint()});F.p.addEventListener('input',()=>rehint());
+F.data.addEventListener('focus',()=>F.data.select());
+F.data.addEventListener('input',()=>{if(R.dataQ!==1||!/^\d{2}$/.test(F.data.value))return;   // «=» и две цифры — день, назад в поле
+  const d=parseDate(F.data.value,R.dataBase||S.data||D.segodnya);if(!d)return;F.data.value=ddmm(d);R.dataQ=0;(R.dataBack||F.kop).focus()});F.kop.addEventListener('focus',()=>F.kop.select());
+$('chasti').addEventListener('input',e=>{const el=e.target,i=+el.dataset.ch,c=R.ch[i];if(!c)return;
+  if(el.dataset.f==='st'){c.stAuto=false;c.st=null;el.classList.remove('hint');
+    openPick(el,'st',it=>{c.st=it.id;c.stAuto=false;el.classList.remove('hint')})}
+  else if(el.dataset.f==='k'){c.kid=null;openPick(el,'k',it=>{c.kid=it.id;c.k=it.n;rehint()})}});
+$('chasti').addEventListener('focusin',e=>{if(e.target.select)e.target.select()});
+
+function bezPerenosov(el,t,data){const a=el.selectionStart,b=el.selectionEnd;el.setRangeText(t.replace(/\s*[\r\n]+\s*/g,' ').trim(),a,b,'end');
+  el.dispatchEvent(new InputEvent('input',{bubbles:true,data}))}
+$('vvodcard').addEventListener('paste',e=>{const t=e.clipboardData?e.clipboardData.getData('text'):'';   // Ctrl+V уже посчитан клавишей
+  const el=e.target;
+  if(el===F.msg||(el===F.kop&&t.trim()&&!ESLI_CHISLO.test(t))){e.preventDefault();const r=razbor(odnaStroka(t),R.s1Sam?null:R.s1);
+    if(r)primenit(r,el===F.msg||!F.kop.value.trim());return}
+  const kind=Object.keys(PICK).find(k=>PICK[k]===el);
+  if(kind&&t.trim()&&!filt(ISTOCH[kind](),odnaStroka(t),1).length){e.preventDefault();const r=razbor(odnaStroka(t),R.s1Sam?null:R.s1);  // не нашлось в списке — это сообщение
+    if(r)primenit(r,!F.kop.value.trim());return}
+  if(/[\r\n]/.test(t)&&el.tagName==='INPUT'){e.preventDefault();bezPerenosov(el,t,null)}});
+$('vvodcard').addEventListener('beforeinput',e=>{if(e.data&&/[\r\n]/.test(e.data)&&e.target.tagName==='INPUT'){e.preventDefault();bezPerenosov(e.target,e.data,e.data)}});
+F.kop.addEventListener('beforeinput',e=>{   // не цифра и не знак суммы — это начало контрагента: туда
+  if(e.inputType!=='insertText'||!e.data||e.data.length!==1||/[\d+\-−,.\s=>]/.test(e.data))return;
+  e.preventDefault();F.k.focus();F.k.value=e.data;F.k.dispatchEvent(new InputEvent('input',{bubbles:true,data:e.data}))});
+const ROW=$('vvodcard');
+ROW.addEventListener('input',e=>{if((e.data||'').length>1){R.kas++;if(!R.t0)R.t0=Date.now()}   // вставка текста — одно касание
+  if(R.warn==='zhdu'){R.warn=false;msg('')}});
+$('otpravit')&&$('otpravit').addEventListener('click',()=>otpravit());
+/* 27.11 кнопки вместо клавиш — для телефона и для мыши */
+const naTelefone=()=>matchMedia('(max-width:700px)').matches;
+$('dobavit').addEventListener('click',()=>{if(R.warn==='zhdu')R.warn='da';commit()});
+$('k_sbros').addEventListener('click',()=>{closeDD();newRow(true);msg('Поля очищены');if(!naTelefone())F.kop.focus()});
+$('k_chast').addEventListener('click',()=>{if(!parseSum(F.kop.value)){msg('Сначала общая сумма, потом части','err');F.kop.focus();return}addPart()});
+$('k_per').addEventListener('click',()=>{closeDD();if(R.per){setPer(false);F.s1.focus();return}
+  if(!R.s1){msg('Сначала выберите счёт, с которого переводите','err');F.s1.focus();return}setPer(true);F.s2.focus();F.s2.select()});
+$('msg').addEventListener('click',e=>{const b=e.target.closest('button[data-v]');if(!b)return;
+  if(b.dataset.v==='da'){R.warn='da';commit()}else{newRow(true);msg('Строка убрана')}});
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.code==='Enter'){e.preventDefault();otpravit();return}
+  if((e.ctrlKey||e.metaKey)&&(e.code==='KeyS')){e.preventDefault();sohranit();return}
+  if(!ROW.contains(e.target))return;
+  if(!['Shift','Control','Alt','Meta','CapsLock'].includes(e.key)){if(!R.t0)R.t0=Date.now();
+    if(e.target.classList.contains('sum')&&/^\d$/.test(e.key))R.cif++;else R.kas++}
+  if(e.altKey&&e.code==='KeyP'){e.preventDefault();addPart();return}
+  if(e.key==='Enter'&&e.target===F.msg){e.preventDefault();const r=razbor(F.msg.value,R.s1Sam?null:R.s1);if(r)primenit(r,true);return}
+  if(e.key==='PageDown'||e.key==='PageUp'){e.preventDefault();const d=parseDate(F.data.value,S.data||D.segodnya)||S.data||D.segodnya;   // день назад / вперёд
+    F.data.value=ddmm(sdvigDnya(d,e.key==='PageUp'?1:-1));return}
+  if(e.key==='='&&e.target!==F.p&&e.target!==F.k&&e.target!==F.msg){e.preventDefault();
+    if(e.target===F.data){R.dataQ=2;msg('Дата полностью: дд.мм.гггг, Enter — назад к сумме');return}
+    R.dataQ=1;R.dataBase=parseDate(F.data.value,S.data||D.segodnya);R.dataBack=e.target;closeDD();F.data.focus();F.data.select();return}
+  if(e.target===F.data&&(e.key==='Enter'||e.key==='Tab')&&R.dataQ){e.preventDefault();const d=parseDate(F.data.value,R.dataBase||S.data||D.segodnya);
+    if(!d){msg('Дата: дд, дд.мм или дд.мм.гггг','err');return}F.data.value=ddmm(d);R.dataQ=0;(R.dataBack||F.kop).focus();return}
+  if(e.key==='>'&&(e.target===F.s1||e.target===F.kop)){e.preventDefault();if(P&&P.inp===F.s1)pickOn();if(!R.s1){msg('Сначала счёт списания','err');return}
+    setPer(true);F.s2.focus();F.s2.select();return}
+  if(e.key==='Backspace'&&e.target===F.s2&&!F.s2.value){e.preventDefault();setPer(false);F.s1.focus();return}
+  if(e.key==='ArrowDown'&&P){e.preventDefault();moveOn(1);return}
+  if(e.key==='ArrowUp'&&P){e.preventDefault();moveOn(-1);return}
+  if(e.key==='Tab'&&P&&P.inp===e.target){pickOn();return}
+  if(e.key==='Enter'){e.preventDefault();if(P&&P.inp===e.target)pickOn();
+    if(R.warn==='zhdu'){R.warn='da'}commit();return}
+  if(e.key==='Escape'){e.preventDefault();if(P){closeDD();return}
+    if(R.warn==='zhdu'){newRow(true);msg('Строка убрана');F.kop.focus();return}
+    if(R.deystvie!=='novaya'||F.kop.value){newRow(true);F.kop.focus()}}});
+
+
+/* ---------- «Разобрать» (пакет 2, 21.11): операции, которые пришли сами (банк через ФТ, Модульбанк, Дзен-мани), без статьи ----------
+   Очередь — D.rz.ops (podskazki.py → razobrat.py). У каждой строки — подсказанная статья по истории (контрагент → счёт + назначение →
+   назначение → слова → первое слово → счёт) и 5 других вариантов из частых (у контрагента, назначения, счёта, потом всего вида). Enter — «да», 1…5 — вариант, буквы — поиск другой статьи,
+   Shift+Enter — «так же для похожих» (тот же контрагент, а без него — то же назначение; тот же вид). Решение — запись
+   {tip:'statya'} в той же пачке файлом (prinyat.py → svoya_statya в тестовой копии). Подсказка учится на решениях сеанса. В ФТ — ничего. */
+const RZ={tab:'vvod',tek:0,start:0};
+const RZ_TAB='vvod.tab.v1';
+const rzOps=()=>(D&&D.rz&&D.rz.ops)||[];
+function rzResh(op){for(let i=S.rz.length-1;i>=0;i--)if(S.rz[i].op===op)return S.rz[i];
+  const b=D.rz&&D.rz.resheno&&D.rz.resheno[op];return b?{st:b,baza:1}:null}
+const rzOst=()=>rzOps().filter(o=>!rzResh(o.op)).length;
+const rzTek=()=>rzOps()[RZ.tek]||null;
+
+/* подсказка со ступенью: что сработало, сколько раз, из скольких */
+function topN(c,g){if(!c)return null;let b=null,bn=0,t=0;for(const k in c){const s=ST.get(+k);if(!gOk(s,g))continue;t+=c[k];if(c[k]>bn){b=+k;bn=c[k]}}
+  return b?{st:b,n:bn,t}:null}
+function podskRz(o){const g=gr(o.vid),kl=klyuch(o.p);let r=null;
+  if(o.kid&&(r=topN(D.k2s[o.kid],g)))return Object.assign(r,{po:'по контрагенту'});
+  if(kl&&(r=topN(D.ss2s[o.s1+'|'+kl],g)))return Object.assign(r,{po:'по счёту и назначению'});
+  if(kl&&(r=topN(D.n2s[kl],g)))return Object.assign(r,{po:'по назначению'});
+  if(o.p){const st=stPoSlovam(stemy(o.p),g);if(st)return {st,n:0,t:0,po:'по словам'}}
+  if(kl&&(r=topN((D.n1s||{})[kl.split(' ')[0]],g)))return Object.assign(r,{po:'по первому слову'});
+  if((r=topN(D.s2s[o.s1],g)))return Object.assign(r,{po:'по счёту'});
+  return null}
+const UV_STUPENI=new Set(['по контрагенту','по счёту и назначению','по назначению']);   // по одному счёту — не «уверенно»
+const uverenno=p=>!!p&&UV_STUPENI.has(p.po)&&p.n>=3&&p.n/p.t>=0.9;
+let CHASTO=null;
+function chasto(g){if(!CHASTO){const c={};for(const a in D.s2s)for(const k in D.s2s[a])c[k]=(c[k]||0)+D.s2s[a][k];
+    const all=Object.keys(c).map(Number).sort((a,b)=>c[b]-c[a]);CHASTO={income:all.filter(k=>gOk(ST.get(k),'income')),outcome:all.filter(k=>gOk(ST.get(k),'outcome'))}}
+  return CHASTO[g]||[]}
+function variantyRz(o,p){const g=gr(o.vid),kl=klyuch(o.p),out=[],sp=p&&p.st;   // 5 других, кроме подсказанной (она — Enter)
+  const add=id=>{if(id&&id!==sp&&!out.includes(id)&&gOk(ST.get(id),g))out.push(id)};
+  const srt=c=>c?Object.keys(c).map(Number).sort((a,b)=>c[b]-c[a]):[];
+  for(const c of [o.kid&&D.k2s[o.kid],kl&&D.ss2s[o.s1+'|'+kl],kl&&D.n2s[kl],D.s2s[o.s1]])for(const id of srt(c))add(id);
+  for(const id of chasto(g))add(id);
+  return out.slice(0,5)}
+function rzStatyi(o){const v=o._v||[],g=gr(o.vid);
+  return D.statyi.filter(s=>gOk(s,g)).sort((a,b)=>(v.includes(b.id)?1:0)-(v.includes(a.id)?1:0)||a.n.localeCompare(b.n,'ru'))}
+function pereschetRz(){for(const o of rzOps()){if(rzResh(o.op)&&o._p!==undefined)continue;if(o._man)continue;
+  o._p=podskRz(o);o._v=variantyRz(o,o._p);o._sel=o._p?o._p.st:null}}
+function dec(map,key,st){const c=key&&map[key];if(!c||!c[st])return;if(--c[st]<=0)delete c[st]}
+function unlearnRz(o,st){const kl=klyuch(o.p);dec(D.k2s,o.kid,st);if(kl){dec(D.ss2s,o.s1+'|'+kl,st);dec(D.n2s,kl,st);
+  if(kl.split(' ')[0].length>=3)dec(D.n1s||{},kl.split(' ')[0],st)}dec(D.s2s,o.s1,st)}
+function learnRz(o,st){const kl=klyuch(o.p);inc(D.k2s,o.kid,st);if(kl){inc(D.ss2s,o.s1+'|'+kl,st);inc(D.n2s,kl,st);
+  if(kl.split(' ')[0].length>=3)inc(D.n1s||(D.n1s={}),kl.split(' ')[0],st)}inc(D.s2s,o.s1,st)}
+
+/* «так же для похожих»: тот же контрагент, без него — то же назначение (ключ — первые 3 слова), тот же вид */
+function pohKey(o){if(o.kid)return 'k'+o.kid+'|'+o.vid;const kl=klyuch(o.p);return kl?'n'+kl+'|'+o.vid:null}
+function pohozhieRz(o){const k=o&&pohKey(o);return k?rzOps().filter(x=>x!==o&&!rzResh(x.op)&&pohKey(x)===k):[]}
+
+function reshitRz(o,st,kak,ot){const e={tip:'statya',np:uuid(),op:o.op,vid:o.vid,st,bylo:o.bylo==null?null:o.bylo,sp:o._p?o._p.st:null,
+    kak,ot:ot||null,kto:kto(),kogda:MSK()};
+  S.rz.push(e);learnRz(o,st);return e}
+function rzMsg(t,cls){const m=$('rz_msg');m.className='msg'+(cls?' '+cls:'');m.innerHTML=t||''}
+function sleduyushchayaRz(){const ops=rzOps(),n=ops.length;for(let i=1;i<=n;i++){const j=(RZ.tek+i)%n;if(!rzResh(ops[j].op)){RZ.tek=j;return}}}
+function primenitRz(kak,st){const o=rzTek();if(!o)return;st=st||o._sel;
+  if(!st){rzMsg('Статья не подсказана: 1…5 — вариант или начните писать название','err');return}
+  const bylo=rzResh(o.op);
+  if(bylo&&!kak.startsWith('pohozhie')&&bylo.st===st){sleduyushchayaRz();renderRz();return}   // уже так — дальше
+  const k0=bylo?'pravka':kak==='pohozhie'?(o._man||'podskazka'):kak;
+  const ph=kak==='pohozhie'?pohozhieRz(o):[];
+  const e=reshitRz(o,st,k0);for(const x of ph)reshitRz(x,st,'pohozhie',e.np);
+  save();pereschetRz();sleduyushchayaRz();renderRz();render();
+  rzMsg('«'+esc(stn(st))+'» — '+ddmm(o.d)+' · '+rub(o.kop)+(ph.length?' и ещё '+ph.length+' похож'+(ph.length===1?'ая':'их'):''),'')}
+function vernutRz(){const o=rzTek();if(!o)return;const i=S.rz.map(x=>x.op).lastIndexOf(o.op);
+  if(i<0||S.rz[i].saved){rzMsg(i<0?'Здесь нечего возвращать':'Решение уже в файле — выберите другую статью, будет новое решение','err');return}
+  unlearnRz(o,S.rz[i].st);S.rz.splice(i,1);o._man=null;o._p=undefined;save();pereschetRz();renderRz();render();rzMsg('Решение возвращено — строка снова в «осталось»','')}
+
+/* ---------- отрисовка ---------- */
+function rzSumma(o){return '<span class="'+(o.vid==='prihod'?'plus':'')+'">'+(o.vid==='prihod'?'+':'−')+rub(o.kop)+'</span>'}
+function renderRz(){if(!D||!D.rz)return;const ops=rzOps(),ost=rzOst(),o=rzTek();
+  const n=$('rz_n');n.textContent=String(ost);n.classList.toggle('nol',!ost);
+  $('rz_ost').textContent='осталось разобрать '+ost+' из '+ops.length;
+  $('rz_ist').textContent='пришли сами за '+ddmm(D.rz.ot)+'–'+ddmm(D.rz.do)+': статья пустая или «Неразнесенное…»'+(D.rz.proba?' · проверка: статья ФТ скрыта':'');
+  const ph=new Set(pohozhieRz(o).map(x=>x.op));
+  if(!ops.length)$('rz_tek').innerHTML='<div class="empty">Разбирать нечего: все операции, которые пришли сами, со статьёй</div>';
+  else if(!ost)$('rz_tek').innerHTML='<div class="rzvse">Осталось 0 — всё разобрано. Нажмите «Отправить» наверху</div>';
+  else if(o){const r=rzResh(o.op),p=o._p,v=o._v||[];
+    $('rz_tek').innerHTML='<div class="op">'+ddmm(o.d)+' · '+esc(o.ist)+' · '+esc(nm(o.s1))+' · <b>'+rzSumma(o)+'</b>'+(o.k?' · '+esc(o.k):'')+
+      (o.p?'<div class="pm2" title="'+esc(o.p)+'">'+esc(o.p)+'</div>':'')+'</div><div class="chips">'+
+      (r?'<span class="tag ok">решено: '+esc(stn(r.st))+'</span>':'')+
+      '<button class="chip on" data-rz="enter"><kbd>Enter</kbd>'+(o._sel?esc(stn(o._sel)):'нет подсказки')+(p&&o._sel===p.st?' <span class="po">'+esc(p.po)+(p.t?' '+p.n+' из '+p.t:'')+'</span>':'')+
+      (uverenno(p)&&o._sel===p.st?' <span class="tag ok">уверенно</span>':'')+'</button>'+
+      v.map((id,i)=>'<button class="chip" data-rz="v'+(i+1)+'"><kbd>'+(i+1)+'</kbd>'+esc(stn(id))+'</button>').join('')+
+      '<button class="chip poh" data-rz="poh"'+(ph.size?'':' disabled')+'><kbd>Shift+Enter</kbd>так же для похожих: '+ph.size+'</button>'+
+      (r&&!r.saved&&!r.baza?'<button class="chip" data-rz="back"><kbd>Backspace</kbd>вернуть решение</button>':'')+'</div>'}
+  $('rz_spisok').innerHTML=ops.map((x,i)=>{const r=rzResh(x.op);
+    const st=r?'<b>'+esc(stn(r.st))+'</b>':x._sel?'<i>'+esc(stn(x._sel))+'</i>'+(x._p&&x._sel===x._p.st?' <span class="po">'+esc(x._p.po)+'</span>':''):'<span class="po">нет подсказки</span>';
+    const tag=r?(r.baza?'<span class="tag ok">в базе</span>':r.kak==='pohozhie'?'<span class="tag ok">так же</span>':'<span class="tag ok">решено</span>')+(r.saved?'<span class="tag">в файле</span>':'')
+      :(uverenno(x._p)&&x._sel===x._p.st?'<span class="tag">уверенно</span>':'');
+    return '<tr data-i="'+i+'" class="'+(i===RZ.tek?'tek ':'')+(ph.has(x.op)?'poh ':'')+(r?'done':'')+'"><td>'+ddmm(x.d)+'</td><td class="num">'+rzSumma(x)+'</td><td>'+esc(nm(x.s1))+
+      '</td><td class="pm" title="'+esc((x.k||'')+' · '+(x.p||''))+'">'+esc(x.k?x.k+(x.p?' · '+x.p:''):(x.p||''))+'</td><td class="st">'+st+'</td><td>'+tag+'</td></tr>'}).join('')||
+    '<tr><td colspan="6" class="empty">Пусто</td></tr>';
+  const tr=document.querySelector('#rz_spisok tr.tek');if(tr&&RZ.tab==='rz'&&tr.scrollIntoView)tr.scrollIntoView({block:'nearest'})}
+
+function tabRz(t){if(!$('p_'+t))t='vvod';RZ.tab=t;
+  for(const b of document.querySelectorAll('.tab')){const on=b.dataset.tab===t,p=$('p_'+b.dataset.tab);b.classList.toggle('on',on);if(p)p.style.display=on?'':'none'}
+  const svoi=t==='skl'||t==='nach';   // у «Склада» и «Начислений» своя кнопка отправки — верхние «Отправить» / «Сохранить» прячем
+  for(const id of ['otpravit','sohranit','schetchik'])if($(id))$(id).style.visibility=svoi?'hidden':'';
+  try{localStorage.setItem(RZ_TAB,t)}catch(e){}
+  const nz=$('k_nazad');if(nz)nz.href=t==='skl'?'../#skl':'../';   // 28.11 собрание: со «Склада» — назад в «Склад» «Учёта»
+  const blur=()=>{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()};
+  closeDD();if(t==='rz'){renderRz();blur()}
+  else if(t==='vp'){if(typeof renderVp==='function')renderVp();blur()}
+  else if(t==='skl'){if(typeof renderSkl==='function')renderSkl();blur()}
+  else if(t==='nach'){if(typeof renderNach==='function')renderNach();blur()}
+  else if(!naTelefone())F.kop.focus()}
+function rzPosleSohraneniya(t){renderRz();if(RZ.tab==='rz')rzMsg(t,'')}
+function rzSostoyanie(){const o=rzTek();return {tab:RZ.tab,tek:RZ.tek,op:o&&o.op,sel:o&&o._sel,sp:o&&o._p?o._p.st:null,po:o&&o._p?o._p.po:null,
+  uverenno:!!(o&&uverenno(o._p)&&o._sel===o._p.st),v:o?o._v||[]:[],poh:pohozhieRz(o).map(x=>x.op),ost:rzOst(),vsego:rzOps().length,
+  resh:o?(rzResh(o.op)||{}).st||null:null,ops:rzOps().map(x=>x.op)}}
+
+/* ---------- клавиатура и мышь ---------- */
+const RZP=$('rz_poisk');
+function rzVybor(it){const o=rzTek();if(!o)return;RZP.value='';o._sel=it.id;o._man='spisok';RZP.blur();primenitRz('spisok',it.id)}
+RZP.addEventListener('input',()=>{const o=rzTek();if(!o)return;openPick(RZP,()=>rzStatyi(o),rzVybor)});
+document.addEventListener('keydown',e=>{if(RZ.tab!=='rz'&&!(e.altKey&&e.code==='KeyR'))return;
+  if(e.altKey&&(e.code==='KeyR'||e.code==='KeyV')){e.preventDefault();tabRz(e.code==='KeyR'?'rz':'vvod');return}
+  if(RZ.tab!=='rz'||e.ctrlKey||e.metaKey)return;
+  if((e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')&&e.target!==RZP)return;   // другие поля — как обычно
+  if(e.target===RZP){
+    if(e.key==='ArrowDown'&&P){e.preventDefault();moveOn(1);return}
+    if(e.key==='ArrowUp'&&P){e.preventDefault();moveOn(-1);return}
+    if((e.key==='Enter'||e.key==='Tab')&&P){e.preventDefault();pickOn();return}
+    if(e.key==='Escape'){e.preventDefault();closeDD();RZP.value='';RZP.blur();return}
+    return}
+  const o=rzTek();
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=rzOps().length;if(n){RZ.tek=(RZ.tek+(e.key==='ArrowDown'?1:-1)+n)%n;renderRz()}return}
+  if(e.key==='Enter'){e.preventDefault();if(e.shiftKey){if(!pohozhieRz(o).length){rzMsg('Похожих в списке нет — Enter ставит только эту','err');return}primenitRz('pohozhie')}
+    else primenitRz(o&&o._man?o._man:'podskazka');return}
+  if(/^[1-5]$/.test(e.key)&&o){e.preventDefault();const id=(o._v||[])[+e.key-1];if(!id)return;o._sel=id;o._man='variant';primenitRz('variant',id);return}
+  if(e.key==='Backspace'){e.preventDefault();vernutRz();return}
+  if(e.key.length===1&&/[a-zа-яё]/i.test(e.key)&&o){e.preventDefault();RZP.focus();RZP.value=e.key;RZP.dispatchEvent(new Event('input'));return}});
+$('rz_tek').addEventListener('click',e=>{const b=e.target.closest('[data-rz]');if(!b)return;const a=b.dataset.rz,o=rzTek();
+  if(a==='enter')primenitRz(o&&o._man?o._man:'podskazka');else if(a==='poh')primenitRz('pohozhie');else if(a==='back')vernutRz();
+  else if(a[0]==='v'&&o){const id=(o._v||[])[+a.slice(1)-1];if(id){o._sel=id;o._man='variant';primenitRz('variant',id)}}});
+$('rz_spisok').addEventListener('click',e=>{const tr=e.target.closest('tr[data-i]');if(!tr)return;RZ.tek=+tr.dataset.i;renderRz();
+  if(naTelefone())$('rz_card').scrollIntoView({behavior:'smooth',block:'start'})});
+for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>tabRz(b.dataset.tab));
+function rzStart(){if(!D.rz)return;
+  for(const o of rzOps()){const r=rzResh(o.op);if(r)learnRz(o,r.st)}   // решения из базы и сеанса — тоже история подсказки
+  pereschetRz();const ops=rzOps();RZ.tek=Math.max(0,ops.findIndex(o=>!rzResh(o.op)));
+  let t='vvod';try{t=localStorage.getItem(RZ_TAB)||'vvod'}catch(e){}if(location.hash==='#razobrat')t='rz';if(location.hash==='#vypiska')t='vp';
+  if(location.hash==='#sklad')t='skl';if(location.hash==='#nachisleniya')t='nach';
+  renderRz();if(t!=='vvod'&&$('p_'+t))tabRz(t)}
+
+/* вкладка «Выписка»: 1С (.txt) — сразу; Excel (.xlsx/.xls) и PDF с текстом — сначала предпросмотр сервера (proba, в базу не пишется), потом «Сохранить» (28.11) */
+const VP_LS='vvod.vp.v1';
+const VP_MAX_B64=400000;
+const VP_U8CH=0x8000;
+let VP_ochered=[],VP_fayly=[];const VP_proba={};
+function vpMsg(t,cls){const m=$('vp_msg');if(!m)return;m.className='msg'+(cls?' '+cls:'');m.innerHTML=t||''}
+function vpProgress(n,vsego){vpMsg('Отправляю: '+n+' из '+vsego+'…','')}
+function vpIstGet(){try{const a=JSON.parse(localStorage.getItem(VP_LS)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function vpIstSet(a){try{localStorage.setItem(VP_LS,JSON.stringify(a.slice(-20)))}catch(e){}}
+function vpRubDecimal(s){if(s==null||s==='')return '—';const p=String(s).trim().split('.');
+  const rub=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ');return p.length>1?rub+','+p[1]:rub}
+function vpMaskSchet(s){if(!s)return '—';const d=String(s).replace(/\D/g,'');if(d.length<4)return '*'+d;return '*'+d.slice(-4)}
+function vpKodirovka(u8){const w=new TextDecoder('windows-1251').decode(u8.subarray(0,Math.min(300,u8.length)));
+  return w.includes('Кодировка=DOS')?'ibm866':'windows-1251'}
+function vpFormat(u8){const h=Array.from(u8.subarray(0,8)).map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(h.startsWith('504b0304')||h.startsWith('d0cf11e0'))return 'Excel';if(h.startsWith('25504446'))return 'PDF';return ''}
+function vpRazbor(u8){if(!u8.length)return {err:'Файл пустой'};
+  const fm=vpFormat(u8);
+  if(fm)return {ok:1,fmt:fm,bank:'',schet:'определит программа',ot:'',do:'',dok:'—',post:'—',spis:'—',proba:1};
+  const enc=vpKodirovka(u8),text=new TextDecoder(enc).decode(u8);
+  const lines=text.split(/\r?\n/),perv=lines[0]&&lines[0].trim();
+  if(perv!=='1CClientBankExchange')return {err:'Формат не подходит. Нужна выписка банка в Excel (.xlsx, .xls), PDF (не скан) или выгрузка „в 1С“ (.txt)'};
+  const g=key=>{const m=text.match(new RegExp('^'+key+'=(.*)$','m'));return m?m[1].trim():''};
+  let dok=0;for(const l of lines)if(l.startsWith('СекцияДокумент'))dok++;
+  return {ok:1,bank:g('Отправитель'),schet:vpMaskSchet(g('РасчСчет')),ot:g('ДатаНачала'),do:g('ДатаКонца'),
+    dok,post:vpRubDecimal(g('ВсегоПоступило')),spis:vpRubDecimal(g('ВсегоСписано')),imya:''}}
+function u8b64Bol(u8){let s='';for(let i=0;i<u8.length;i+=VP_U8CH){const sl=u8.subarray(i,Math.min(i+VP_U8CH,u8.length));
+    s+=String.fromCharCode.apply(null,sl)}return btoa(s)}
+async function vpGzip(u8){if(!('CompressionStream' in window))throw new Error('Браузер устарел, обновите');
+  return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer())}
+function vpKartaPrv(f){const p=f.preview;if(p.proba)return '<div class="vpcard" data-i="'+f.i+'"><b>'+esc(f.imya)+'</b><div class="vprow">'+
+  '<span>'+esc(p.fmt)+'</span><span>'+Math.round(f.u8.length/1024)+' КБ</span><span>сначала покажу, что в файле, — сохраните после проверки</span></div></div>';
+  return '<div class="vpcard" data-i="'+f.i+'"><b>'+esc(f.imya)+'</b><div class="vprow">'+
+  '<span>банк: '+esc(p.bank||'—')+'</span><span>счёт: '+esc(p.schet)+'</span>'+
+  '<span>период: '+esc(p.ot)+' — '+esc(p.do)+'</span><span>операций: '+p.dok+'</span>'+
+  '<span>поступило: '+esc(p.post)+' ₽</span><span>списано: '+esc(p.spis)+' ₽</span></div></div>'}
+function renderVpPrev(){const box=$('vp_prev'),kn=$('vp_knopki');
+  if(!VP_fayly.length){box.innerHTML='';kn.style.display='none';return}
+  box.innerHTML=VP_fayly.map(vpKartaPrv).join('');kn.style.display=''}
+function renderVpIst(){const hist=vpIstGet(),card=$('vp_istoriya'),sp=$('vp_spisok');
+  if(!hist.length){card.style.display='none';return}card.style.display='';
+  sp.innerHTML='<div class="vpist">'+hist.slice().reverse().map(h=>{
+    let t='<div class="vpi"><b>'+esc(h.imya)+'</b> · '+esc(h.bank||'')+' · '+esc(h.schet);
+    if(h.ot)t+=' · '+esc(h.ot)+'–'+esc(h.do);
+    if(h.itog)t+=' · '+esc(h.itog);else if(h.err)t+=' · <span class="err">'+esc(h.err)+'</span>';
+    return t+'</div>'}).join('')+'</div>'}
+function renderVp(){renderVpPrev();renderVpIst()}
+async function vpDobavitFayly(list){let oshibka=false;for(const file of list){const u8=new Uint8Array(await file.arrayBuffer()),pr=vpRazbor(u8);
+  if(pr.err){vpMsg(esc(String(file.name||'файл').slice(0,80))+': '+esc(pr.err),'err');oshibka=true;continue}
+  const imya=String(file.name||'файл').slice(0,120);
+  VP_fayly.push({i:VP_fayly.length,imya,u8,preview:pr});}
+  renderVpPrev();if(VP_fayly.length&&!oshibka)vpMsg('')}
+function vpPendVyp(){const q=pendGet();return !!(q&&q.json)}   // любая неподтверждённая отправка (выписка или операции): ячейка ожидания одна
+function vpSled(){if(!VP_ochered.length)return;const pend=window.VP_POSL?null:pendGet();
+  if(pend&&pend.json)return;
+  vpOtpravitOchered(VP_ochered.shift())}
+async function vpOtpravitOchered(f){if(!window.VP_POSL&&(!SV||!SV.hosts)){vpMsg('Нет канала связи в данных','err');vpZapisIst(f,null,'Нет канала');vpSled();return}
+  if(!window.VP_POSL&&vpPendVyp()){vpMsg('Жду ответ сервера по прошлой отправке — файл уйдёт сам следом','warn');VP_ochered.unshift(f);return}
+  try{const gz=await vpGzip(f.u8),b64=u8b64Bol(gz);
+    if(b64.length>VP_MAX_B64){vpMsg('Файл слишком большой — выгрузите период покороче (например, месяц)','err');
+      vpZapisIst(f,null,'Слишком большой');vpSled();return}
+    const proba=!!(f.preview&&f.preview.proba&&!f.podtv);
+    const p={v:1,tip:'vypiska',pachka:uuid(),kto:kto(),sozdana:MSK(),fayl:f.imya,format:f.preview&&f.preview.fmt?'auto':'1c',gz:b64,razmer:f.u8.length};
+    if(proba){p.proba=true;VP_proba[p.pachka]=f}
+    f._pachka=p.pachka;await (window.VP_POSL||poslatPachku)(p,false);vpMsg(proba?'Отправлено на проверку · жду, что в файле…':'Отправлено · жду ответ…','')}catch(e){
+    vpMsg(esc(e.message),'err');vpZapisIst(f,null,e.message);vpSled()}}
+function vpPrevSrv(json,v){const f=VP_proba[json.pachka];delete VP_proba[json.pachka];
+  const st={novaya:'новая',est:'уже в учёте',povtor:'уже загружали'};
+  let box=$('vp_srv');if(!box){box=document.createElement('div');box.id='vp_srv';$('vp_msg').after(box)}
+  const el=document.createElement('div');el.className='vpcard vpsrv';
+  let h='🔎 <b>'+esc(json.fayl)+'</b> · '+esc(v.format||'')+' · '+esc(v.bank||'')+' · '+esc(v.schet||'')+(v.ot?' · '+esc(v.ot)+'–'+esc(v.do):'')
+    +'<br>• операций '+v.strok+': новых '+v.novyh+', уже в учёте '+v.est+', уже загружали '+v.povtor+(v.neponyatno?', не понял '+v.neponyatno:'')
+    +'<br>• приход '+rub(v.prihod_kop||0)+' ₽, расход '+rub(v.rashod_kop||0)+' ₽'
+    +'<div class="vpist">'+(v.primer||[]).map(x=>'<div class="vpi">'+esc(x.d)+' · '+(x.vid==='prihod'?'+':'−')+rub(x.kop)+' · '+esc(x.k||x.p||'—')+' · '+esc(st[x.st]||x.st||'')+'</div>').join('')+'</div>';
+  if(f&&v.novyh)h+='<div class="knopki"><button class="btn acc" type="button" data-vp="sohr">Сохранить новые ('+v.novyh+')</button><button class="btn" type="button" data-vp="otm">Не сохранять</button></div>';
+  else h+='<div class="sub">Новых нет — сохранять нечего.</div>';
+  el.innerHTML=h;box.appendChild(el);vpMsg('Проверьте файл ниже и нажмите «Сохранить»','');
+  const sb=el.querySelector('[data-vp="sohr"]'),ob=el.querySelector('[data-vp="otm"]');
+  if(sb)sb.onclick=()=>{f.podtv=1;el.remove();VP_ochered.unshift(f);vpMsg('Сохраняю «'+esc(json.fayl)+'»…','');vpSled()};
+  if(ob)ob.onclick=()=>{el.remove();vpZapisIst({imya:json.fayl,preview:{bank:v.bank,schet:v.schet,ot:v.ot,do:v.do}},'проверил, не сохранял',null)};
+  vpSled()}
+function vpItog(json,v){if(v.proba||json.proba)return vpPrevSrv(json,v);const bank=v.bank||json.fayl,schet=v.schet||'',ot=v.ot||'',do1=v.do||'';
+  let html='✅ <b>'+esc(bank)+'</b>'+(schet?', '+esc(schet):'')+(ot?', '+esc(ot)+'–'+esc(do1):'');
+  const ln=[];if(v.strok)ln.push('операций '+v.strok);
+  if(v.novyh)ln.push('новых '+v.novyh+' — появятся во вкладке «Разобрать» через 2–3 минуты, там выберите статьи');
+  if(v.est)ln.push('уже были в учёте '+v.est+' — не задвоил');
+  if(v.povtor)ln.push('этот файл уже загружали: '+v.povtor+' — пропустил');
+  if(ln.length)html+='<br>• '+ln.map(esc).join('<br>• ');
+  vpMsg(html,'');vpZapisIst({imya:json.fayl,preview:{bank:v.bank,schet:v.schet,ot,do:do1}},ln.join(' • '),null);vpSled()}
+function vpZapisIst(f,itog,err){const h={t:Date.now(),imya:f.imya,bank:f.preview&&f.preview.bank,schet:f.preview&&f.preview.schet,
+  ot:f.preview&&f.preview.ot,do:f.preview&&f.preview.do,itog,err};const a=vpIstGet();a.push(h);vpIstSet(a);renderVpIst()}
+async function vpZagruzit(){if(!VP_fayly.length){vpMsg('Сначала выберите файлы');return}
+  if(vpPendVyp()){vpMsg('Жду ответ сервера по прошлой отправке — файл уйдёт сам следом','warn');return}
+  VP_ochered=VP_fayly.slice();VP_fayly=[];renderVpPrev();vpSled()}
+function vpStart(){const dz=$('vp_dropzone'),inp=$('vp_file'),drop=$('vp_drop');
+  if(!dz)return;
+  dz.addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',()=>{if(inp.files.length)vpDobavitFayly(Array.from(inp.files));inp.value=''});   // 28.11: копия списка — очистка поля не теряет 2-й и следующие файлы
+  $('vp_zagruzit').addEventListener('click',vpZagruzit);
+  drop.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('vp-over')});
+  drop.addEventListener('dragleave',()=>dz.classList.remove('vp-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('vp-over');
+    if(e.dataTransfer.files.length)vpDobavitFayly(Array.from(e.dataTransfer.files))});
+  renderVpIst()}
+/* вкладка «Склад» (27.11): приёмка, перемещение, списание → МойСклад. Товар — по артикулу продавца (карточка МС — справочник
+   товаров), остаток — копия МС в «Учёте». Перед отправкой — лист «было → стало»; больше остатка переместить/списать нельзя. */
+const SKL_LS='vvod.skl.v1',SKL_IST='vvod.skl.ist.v1';
+const SKL_VID={priemka:'Приёмка',peremeshchenie:'Перемещение',spisanie:'Списание',oprihodovanie:'Оприходование',vozvrat:'Возврат поставщику',inventarizaciya:'Инвентаризация'};
+/* 27.11 п.11: плюс к остатку / минус (больше остатка нельзя) / с ценой / с поставщиком; инвентаризация — фактическое кол-во */
+const SK_PLUS=['priemka','oprihodovanie'],SK_MINUS=['spisanie','vozvrat','peremeshchenie'],SK_CENA=['priemka','oprihodovanie','vozvrat'],SK_POST=['priemka','vozvrat'];
+const SK_CL={priemka:'Цена закупки, ₽',oprihodovanie:'Себестоимость, ₽ за шт',vozvrat:'Цена возврата, ₽'};
+function parseKol0(t){t=String(t||'').replace(/\s/g,'').replace(',','.');if(!/^\d+(\.\d{1,3})?$/.test(t))return null;return parseFloat(t)}
+const SKL_PRICH=['Брак','Недостача','Утеря','Повреждён при доставке'];
+let SKL=null,SKD=null,SKL_T=null,SKL_S=null,SKL_P=null,SKL_OST=null;
+function sklDraft(){return {nomer:uuid(),vid:'priemka',data:(D&&D.segodnya)||MSK().slice(0,10),s1:null,s2:null,post:null,prich:'',kom:'',
+  rows:[{t:null,kol:'',cena:'',summa:''}],check:0}}
+function sklSave(){try{localStorage.setItem(SKL_LS,JSON.stringify(SKL))}catch(e){}}
+function sklLoad(){try{const x=JSON.parse(localStorage.getItem(SKL_LS)||'null');if(x&&x.nomer&&Array.isArray(x.rows))return x}catch(e){}return sklDraft()}
+function sklIstGet(){try{const a=JSON.parse(localStorage.getItem(SKL_IST)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function sklIstSet(a){try{localStorage.setItem(SKL_IST,JSON.stringify(a.slice(-30)))}catch(e){}}
+function sklMsg(t,cls){const m=$('skl_msg');if(!m)return;m.className='msg'+(cls?' '+cls:'');m.innerHTML=t||''}
+function shtR(x){return (Math.round(x*1000)/1000).toString().replace('.',',')}
+function parseKol(t){t=String(t||'').replace(/\s/g,'').replace(',','.');if(!/^\d+(\.\d{1,3})?$/.test(t))return null;const v=parseFloat(t);return v>0?v:null}
+/* справочники */
+function sklPrep(){SKD=D&&D.skl&&!D.skl.err?D.skl:null;if(!SKD)return;
+  SKL_S=SKD.sklady.map((s,i)=>({i,id:s.id,n:s.n+(s.pl?' · площадка':''),_n:norm(s.n)}));
+  SKL_P=SKD.post.map((s,i)=>({i,id:s.id,n:s.n,_n:norm(s.n)}));
+  SKL_T=SKD.tovary.map((t,i)=>({i,id:t.id,n:t.a+(t.a!==t.n?' — '+t.n:'')+(t.k?' · '+t.k:''),
+    _n:norm([t.a,t.n,t.k].concat(t.aa||[]).join(' '))}));
+  SKL_OST=new Map();for(const [ti,si,k] of SKD.ost)SKL_OST.set(ti+':'+si,k)}
+function ostSkl(ti,si){if(ti==null||si==null)return 0;return SKL_OST.get(ti+':'+si)||0}
+/* «было → стало» с учётом документов этого сеанса, которых копия МС ещё не видела */
+function sklSdvig(ti,si){let d=0;for(const h of sklIstGet()){if(!h.dv||!SKD||h.at!==SKD.at)continue;for(const x of h.dv)if(x[0]===ti&&x[1]===si)d+=x[2]}return d}
+function ostTek(ti,si){return ostSkl(ti,si)+sklSdvig(ti,si)}
+/* разметка */
+function sklRowHtml(r,i){const t=r.t!=null?SKD.tovary[r.t]:null,v=SKL.vid;
+  const naSk=t&&SKL.s1!=null?(v==='inventarizaciya'?'по учёту':'на складе')+': <b>'+shtR(ostTek(r.t,SKL.s1))+'</b> шт':'';
+  let nab='';if(t&&t.nab)nab='<div class="sub">'+t.nab.map(x=>'«'+esc(x[0])+'» = '+x[1]+' шт этого товара').join('; ')+' — количество вводите в штуках</div>';
+  return '<div class="skrow" data-i="'+i+'"><div class="skn">'+(i+1)+'</div><div class="skf">'+
+    '<label class="lbl">Товар — артикул продавца, название или код</label>'+
+    '<input class="f sk_t" data-i="'+i+'" value="'+esc(t?t.a:'')+'" placeholder="начните писать артикул" autocomplete="off">'+
+    (t?'<div class="sub">'+esc(t.n)+(t.k?' · код '+esc(t.k):'')+(naSk?' · '+naSk:'')+'</div>':'')+nab+
+    '<div class="skgrid'+(SK_CENA.includes(v)?' tri':'')+'">'+
+    '<div><label class="lbl">'+(v==='inventarizaciya'?'Фактически, шт':'Кол-во, шт')+'</label><input class="f sum sk_kol" data-i="'+i+'" value="'+esc(r.kol)+'" inputmode="decimal" placeholder="0" autocomplete="off"></div>'+
+    (SK_CENA.includes(v)?'<div><label class="lbl">'+SK_CL[v]+'</label><input class="f sum sk_cena" data-i="'+i+'" value="'+esc(r.cena)+'" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>'+
+      '<div><label class="lbl">Сумма, ₽</label><input class="f sum sk_summa" data-i="'+i+'" value="'+esc(r.summa)+'" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>':'')+
+    '</div></div><button class="btn sm skdel" data-i="'+i+'" title="убрать строку" aria-label="убрать строку">✕</button></div>'}
+function renderSkl(){if(!$('p_skl'))return;sklPrep();
+  if(!SKD){$('skl_form').innerHTML='<div class="nodata">Нет данных склада'+(D&&D.skl&&D.skl.err?': '+esc(D.skl.err):'')+'</div>';return}
+  if(!SKL)SKL=sklLoad();const v=SKL.vid;
+  for(const b of document.querySelectorAll('#skl_vid .seg'))b.classList.toggle('on',b.dataset.v===v);
+  $('skl_data').value=SKL.data||'';
+  $('skl_l1').textContent=SK_PLUS.includes(v)?'На склад':v==='inventarizaciya'?'Склад':'Со склада';
+  $('skl_s1').value=SKL.s1!=null&&SKD.sklady[SKL.s1]?SKD.sklady[SKL.s1].n:'';
+  $('skl_b2').style.display=v==='peremeshchenie'?'':'none';$('skl_s2').value=SKL.s2!=null&&SKD.sklady[SKL.s2]?SKD.sklady[SKL.s2].n:'';
+  $('skl_bp').style.display=SK_POST.includes(v)?'':'none';$('skl_post').value=SKL.post!=null&&SKD.post[SKL.post]?SKD.post[SKL.post].n:'';
+  $('skl_bpr').style.display=v==='spisanie'?'':'none';$('skl_prich').value=SKL.prich||'';
+  $('skl_pr_chips').innerHTML=SKL_PRICH.map(x=>'<button type="button" class="chip'+(SKL.prich===x?' on':'')+'" data-pr="'+esc(x)+'">'+esc(x)+'</button>').join('');
+  $('skl_kom').value=SKL.kom||'';
+  $('skl_rows').innerHTML=SKL.rows.map(sklRowHtml).join('');
+  sklItogo();renderSklCheck();renderSklIst();
+  $('skl_zapis').textContent=SKD.zapis?'':'Запись в МойСклад ещё не включена: документ примется в «Учёт» и уйдёт в МС сам, когда её включат.';
+  $('skl_at').textContent='остатки — копия МойСклада на '+SKD.at.slice(8,10)+'.'+SKD.at.slice(5,7)+' '+SKD.at.slice(11)}
+function sklItogo(){let n=0,sht=0,kop=0;for(const r of SKL.rows){if(r.t==null)continue;n++;const k=parseKol(r.kol);if(k)sht+=k;
+    const s=parseSum(r.summa);if(SK_CENA.includes(SKL.vid)&&s)kop+=s.kop}
+  $('skl_itogo').innerHTML=n?'Товаров '+n+' · '+shtR(sht)+' шт'+(SK_CENA.includes(SKL.vid)?' · сумма <b>'+rub(kop)+' ₽</b>':''):''}
+/* проверка и лист «было → стало» */
+function sklSobrat(){const err=[],v=SKL.vid;
+  if(!SKL.data||!/^\d{4}-\d\d-\d\d$/.test(SKL.data))err.push('Дата документа');
+  if(SKL.s1==null)err.push(SK_PLUS.includes(v)?'Склад, на который пришёл товар':v==='inventarizaciya'?'Склад инвентаризации':'Склад, с которого');
+  if(v==='peremeshchenie'){if(SKL.s2==null)err.push('Склад, на который перемещаете');else if(SKL.s2===SKL.s1)err.push('Склады «откуда» и «куда» одинаковые')}
+  if(SK_POST.includes(v)&&SKL.post==null)err.push('Поставщик');
+  if(v==='spisanie'&&!String(SKL.prich||'').trim())err.push('Причина списания');
+  const stroki=[],videl=new Set();
+  SKL.rows.forEach((r,i)=>{if(r.t==null&&!r.kol&&!r.cena)return;
+    if(r.t==null){err.push('Строка '+(i+1)+': выберите товар из списка');return}
+    if(videl.has(r.t)){err.push('Строка '+(i+1)+': товар уже есть выше — сложите количество');return}videl.add(r.t);
+    const k=v==='inventarizaciya'?parseKol0(r.kol):parseKol(r.kol);if(k==null||(!k&&v!=='inventarizaciya')){err.push('Строка '+(i+1)+': '+(v==='inventarizaciya'?'фактическое количество':'количество'));return}
+    const t=SKD.tovary[r.t],x={tovar:t.id,art:t.a,kol:k,_t:r.t};
+    if(SK_CENA.includes(v)){const c=parseSum(r.cena);if(!c){err.push('Строка '+(i+1)+': '+SK_CL[v].replace(/, ₽.*$/,'').toLowerCase());return}x.cena_kop=c.kop}
+    stroki.push(x)});
+  if(!stroki.length&&!err.length)err.push('Добавьте товар');
+  const list=[];let minus=0;
+  for(const x of stroki){const t=SKD.tovary[x._t],a=ostTek(x._t,SKL.s1);
+    const l={a:t.a,kol:x.kol,s1:SKD.sklady[SKL.s1]?SKD.sklady[SKL.s1].n:'',b1:a,c1:SK_PLUS.includes(v)?a+x.kol:v==='inventarizaciya'?x.kol:a-x.kol};
+    if(v==='peremeshchenie'){const b=ostTek(x._t,SKL.s2);l.s2=SKD.sklady[SKL.s2]?SKD.sklady[SKL.s2].n:'';l.b2=b;l.c2=b+x.kol}
+    if(SK_CENA.includes(v))l.sum=Math.round(x.kol*x.cena_kop);
+    if(l.c1<-1e-9)minus++;list.push(l)}
+  if(minus)err.push((v==='spisanie'?'Списать':v==='vozvrat'?'Вернуть':'Переместить')+' больше, чем есть на складе, нельзя — '+minus+' '+(minus===1?'товар':'товара')+' уйдут в минус');
+  return {err,stroki,list}}
+function renderSklCheck(){const box=$('skl_check');if(!SKL.check){box.style.display='none';$('skl_knopki').style.display='';return}
+  const r=sklSobrat(),v=SKL.vid;box.style.display='';$('skl_knopki').style.display='none';
+  let h='<h2>Проверьте: было → стало</h2><div class="sub poyasn">'+esc(SKL_VID[v])+' · '+ddmm(SKL.data)+
+    (SK_POST.includes(v)&&SKL.post!=null?(v==='vozvrat'?' · поставщику «':' · от «')+esc(SKD.post[SKL.post].n)+'»':'')+(v==='spisanie'?' · причина: '+esc(SKL.prich):'')+'</div>';
+  if(v==='inventarizaciya'){const iz=r.list.filter(l=>l.c1>l.b1+1e-9).length,ne=r.list.filter(l=>l.c1<l.b1-1e-9).length;h+='<div class="sub poyasn">'+(iz||ne?'«Учёт» сам оформит: '+(iz?'оприходование излишков ('+iz+')':'')+(iz&&ne?' и ':'')+(ne?'списание недостачи ('+ne+')':'')+'.':'Всё сходится с учётом — будет только документ инвентаризации.')+'</div>'}
+  h+='<div class="sklist">'+r.list.map(l=>'<div class="skli"><b>'+esc(l.a)+'</b> · '+shtR(l.kol)+' шт'+(l.sum!=null?' · '+rub(l.sum)+' ₽':'')+
+    '<div class="skbs'+(l.c1<-1e-9?' minus':'')+'">'+esc(l.s1)+': '+(v==='inventarizaciya'?'по учёту <b>'+shtR(l.b1)+'</b> → фактически <b>'+shtR(l.c1)+'</b>'+(Math.abs(l.c1-l.b1)>1e-9?' ('+(l.c1>l.b1?'излишек +':'недостача −')+shtR(Math.abs(l.c1-l.b1))+')':' · сходится'):'было <b>'+shtR(l.b1)+'</b> → стало <b>'+shtR(l.c1)+'</b>')+'</div>'+
+    (l.s2!=null?'<div class="skbs">'+esc(l.s2)+': было <b>'+shtR(l.b2)+'</b> → стало <b>'+shtR(l.c2)+'</b></div>':'')+'</div>').join('')+'</div>';
+  if(r.err.length)h+='<div class="msg err">Не хватает: '+r.err.map(esc).join('; ')+'</div>';
+  h+='<div class="knopki"><button class="btn acc" id="skl_go"'+(r.err.length?' disabled':'')+'>'+($('skl_ms').checked?'Отправить в МойСклад':'Сохранить только в «Учёт»')+'</button>'+
+    '<button class="btn" id="skl_nazad">← Исправить</button></div>';
+  box.innerHTML=h}
+function renderSklIst(){const box=$('skl_ist');if(!box)return;const loc=sklIstGet().slice().reverse(),docs=(SKD&&SKD.docs)||[];
+  const videl=new Set(),rows=[];
+  for(const h of loc){videl.add(h.nomer);rows.push({vid:h.vid,d:h.d,t:h.t,sht:h.sht,err:h.err,ok:h.ok})}
+  for(const d of docs){if(videl.has(d.nomer))continue;const s=SKD.sklady[d.s]||{},s2=SKD.sklady[d.s2]||{};
+    rows.push({vid:d.vid,d:d.d,t:(s.n||'')+(d.s2!=null?' → '+(s2.n||''):'')+' · '+d.t,sht:d.sht,err:d.st==='oshibka',ok:d.st==='sozdan'})}
+  $('skl_ist_card').style.display=rows.length?'':'none';
+  box.innerHTML=rows.slice(0,30).map(x=>'<div class="vpi"><span class="tag'+(x.err?' b':x.ok?' ok':' w')+'">'+esc(SKL_VID[x.vid]||'')+'</span> '+
+    ddmm(x.d)+(x.sht?' · '+shtR(x.sht)+' шт':'')+' · '+esc(x.t||'')+'</div>').join('')}
+/* отправка и ответ */
+function sklOtpravit(){const r=sklSobrat();if(r.err.length){renderSklCheck();return}
+  if(!SV||!SV.hosts){sklMsg('Нет канала связи в данных','err');return}
+  const pend=pendGet();if(pend&&pend.json){sklMsg('Жду ответ сервера по прошлой отправке — нажмите ещё раз через минуту','warn');return}
+  const v=SKL.vid,dok={nomer:SKL.nomer,vid:v,data:SKL.data,sklad:SKD.sklady[SKL.s1].id,kommentariy:SKL.kom||'',
+    stroki:r.stroki.map(x=>{const y={tovar:x.tovar,art:x.art,kol:x.kol};if(x.cena_kop!=null)y.cena_kop=x.cena_kop;return y})};
+  if(v==='peremeshchenie')dok.sklad2=SKD.sklady[SKL.s2].id;
+  if(SK_POST.includes(v))dok.postavshchik=SKD.post[SKL.post].id;
+  if(v==='spisanie')dok.prichina=SKL.prich;
+  const dv=[];for(const x of r.stroki){if(SK_PLUS.includes(v))dv.push([x._t,SKL.s1,x.kol]);else if(v==='inventarizaciya')dv.push([x._t,SKL.s1,x.kol-ostTek(x._t,SKL.s1)]);else{dv.push([x._t,SKL.s1,-x.kol]);if(v==='peremeshchenie')dv.push([x._t,SKL.s2,x.kol])}}
+  const p={v:1,tip:'sklad',pachka:uuid(),kto:kto(),sozdana:MSK(),dok};if(!$('skl_ms').checked)p.bez_kopii=1;   // 27.11 галочка
+  SKL.otpr={pachka:p.pachka,dv,sht:r.stroki.reduce((a,x)=>a+x.kol,0),t:SKD.sklady[SKL.s1].n+(v==='peremeshchenie'?' → '+SKD.sklady[SKL.s2].n:'')};sklSave();
+  $('skl_go').disabled=true;
+  poslatPachku(p,false).then(()=>sklMsg('Отправлено · жду ответ сервера (1–3 минуты)…','')).catch(e=>{sklMsg(esc(e.message),'err');$('skl_go').disabled=false})}
+function sklItog(pl,json){const s=pl.sklad||{};const ok=pl.status==='prinyato';
+  const t=ok?(s.tekst||'Принято'):((pl.oshibki||[]).join('; ')||'ошибка приёма');
+  if(ok){const o=SKL&&SKL.otpr&&SKL.otpr.pachka===json.pachka?SKL.otpr:{dv:[],sht:0,t:''};
+    const a=sklIstGet();a.push({nomer:json.dok.nomer,vid:json.dok.vid,d:json.dok.data,t:o.t+' · '+t,sht:o.sht,ok:s.status==='sozdan'||s.status==='zhdet'?1:0,
+      err:s.status==='oshibka'?1:0,dv:s.status==='sozdan'?o.dv:[],at:SKD.at});sklIstSet(a);
+    SKL=sklDraft();sklSave();renderSkl();sklMsg((s.status==='oshibka'?'⚠️ ':'✅ ')+esc(t),s.status==='oshibka'?'err':'')}
+  else{if(SKL){SKL.check=1;delete SKL.otpr;sklSave()}renderSkl();sklMsg('Не принято: '+esc(t),'err')}}
+/* события */
+function sklPick(inp,src,set,vse){openPick(inp,src,it=>{set(it.i);sklSave();renderSkl()},vse)}
+function sklKey(e){if(e.key==='ArrowDown'&&P){e.preventDefault();moveOn(1)}else if(e.key==='ArrowUp'&&P){e.preventDefault();moveOn(-1)}
+  else if((e.key==='Enter'||e.key==='Tab')&&P&&P.inp===e.target){e.preventDefault();pickOn()}else if(e.key==='Escape'&&P){e.preventDefault();closeDD()}}
+function sklStart(){const p=$('p_skl');if(!p)return;SKL=sklLoad();sklPrep();if(!SKD){renderSkl();return}
+  $('skl_vid').addEventListener('click',e=>{const b=e.target.closest('.seg');if(!b)return;SKL.vid=b.dataset.v;SKL.check=0;
+    if(SKL.vid!=='peremeshchenie')SKL.s2=null;sklSave();renderSkl();sklMsg('')});
+  $('skl_data').addEventListener('change',e=>{SKL.data=e.target.value;sklSave()});
+  for(const [id,src,f] of [['skl_s1',()=>SKL_S,i=>{SKL.s1=i}],['skl_s2',()=>SKL_S.filter(s=>s.i!==SKL.s1),i=>{SKL.s2=i}],['skl_post',()=>SKL_P,i=>{SKL.post=i}]]){
+    const el=$(id);el.addEventListener('input',()=>sklPick(el,src,f));el.addEventListener('focus',()=>{el.select();sklPick(el,src,f,true)});el.addEventListener('click',()=>{if(!P||P.inp!==el)sklPick(el,src,f,true)});el.addEventListener('keydown',sklKey)}
+  $('skl_prich').addEventListener('input',e=>{SKL.prich=e.target.value;sklSave()});
+  $('skl_pr_chips').addEventListener('click',e=>{const b=e.target.closest('[data-pr]');if(!b)return;SKL.prich=b.dataset.pr;sklSave();renderSkl()});
+  $('skl_kom').addEventListener('input',e=>{SKL.kom=e.target.value;sklSave()});
+  const rows=$('skl_rows');
+  rows.addEventListener('input',e=>{const el=e.target,i=+el.dataset.i,r=SKL.rows[i];if(!r)return;
+    if(el.classList.contains('sk_t')){r.t=null;openPick(el,()=>SKL_T,it=>{r.t=it.i;sklSave();renderSkl();const k=document.querySelector('.sk_kol[data-i="'+i+'"]');if(k)k.focus()});return}
+    if(el.classList.contains('sk_kol')){r.kol=el.value;const k=parseKol(r.kol),c=parseSum(r.cena);if(k&&c)r.summa=rub(Math.round(k*c.kop));}
+    if(el.classList.contains('sk_cena')){r.cena=el.value;const k=parseKol(r.kol),c=parseSum(r.cena);if(k&&c)r.summa=rub(Math.round(k*c.kop))}
+    if(el.classList.contains('sk_summa')){r.summa=el.value;const k=parseKol(r.kol),s=parseSum(r.summa);if(k&&s)r.cena=rub(Math.round(s.kop/k))}
+    const pr=document.querySelector('.sk_summa[data-i="'+i+'"]');if(pr&&el!==pr)pr.value=r.summa;
+    const cn=document.querySelector('.sk_cena[data-i="'+i+'"]');if(cn&&el!==cn)cn.value=r.cena;
+    sklSave();sklItogo()});
+  rows.addEventListener('keydown',e=>{if(e.target.classList.contains('sk_t'))sklKey(e)});
+  rows.addEventListener('click',e=>{const b=e.target.closest('.skdel');if(!b)return;SKL.rows.splice(+b.dataset.i,1);if(!SKL.rows.length)SKL.rows.push({t:null,kol:'',cena:'',summa:''});sklSave();renderSkl()});
+  $('skl_add').addEventListener('click',()=>{SKL.rows.push({t:null,kol:'',cena:'',summa:''});sklSave();renderSkl();
+    const l=document.querySelectorAll('.sk_t');if(l.length)l[l.length-1].focus()});
+  $('skl_prov').addEventListener('click',()=>{closeDD();SKL.check=1;sklSave();renderSklCheck();sklMsg('');$('skl_check').scrollIntoView({behavior:'smooth',block:'start'})});
+  $('skl_sbros').addEventListener('click',()=>{closeDD();SKL=sklDraft();sklSave();renderSkl();sklMsg('Документ очищен')});
+  $('skl_check').addEventListener('click',e=>{if(e.target.id==='skl_nazad'){SKL.check=0;sklSave();renderSklCheck()}else if(e.target.id==='skl_go')sklOtpravit()});
+  renderSkl()}
+
+/* вкладка «Начисления» (27.11): зарплата, акт фулфилмента, проценты по кредиту. Запись живёт в «Учёте» (долги считаются из неё),
+   в Финтабло копируется тем, что даёт его API: зарплата — начисления месяца в ведомости, акт — обязательство «Требует оплаты»;
+   проценты в Финтабло не начисляются (там только выплаты). */
+const NC_LS='vvod.nach.v1',NC_IST='vvod.nach.ist.v1';
+const NC_VID={zarplata:'Зарплата',akt_ff:'Акт ФФ',procenty:'Проценты'};
+const NC_MES=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+let NC=null,ND=null;
+function ncMesSdvig(m,n){let y=+m.slice(0,4),k=+m.slice(5)-1+n;y+=Math.floor(k/12);k=((k%12)+12)%12;return y+'-'+String(k+1).padStart(2,'0')}
+function ncMesRu(m){return m?NC_MES[+m.slice(5)-1]+' '+m.slice(0,4):''}
+function ncPoslDen(m){const d=new Date(Date.UTC(+m.slice(0,4),+m.slice(5),0));return d.toISOString().slice(0,10)}
+function ncDraft(vid){const tek=(ND&&ND.mes)||MSK().slice(0,7);vid=vid||'zarplata';
+  return {nomer:uuid(),vid,mes:vid==='akt_ff'?ncMesSdvig(tek,-1):tek,sotr:null,ok:'',pr:'',ud:'',auto:1,ff:null,ffn:'',na:'',da:'',sumff:'',kr:null,sumpr:'',kom:''}}
+function ncSave(){try{localStorage.setItem(NC_LS,JSON.stringify(NC))}catch(e){}}
+function ncLoad(){try{const x=JSON.parse(localStorage.getItem(NC_LS)||'null');if(x&&x.nomer&&x.vid)return x}catch(e){}return ncDraft()}
+function ncIstGet(){try{const a=JSON.parse(localStorage.getItem(NC_IST)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function ncIstSet(a){try{localStorage.setItem(NC_IST,JSON.stringify(a.slice(-30)))}catch(e){}}
+function ncMsg(t,cls){const m=$('nach_msg');if(!m)return;m.className='msg'+(cls?' '+cls:'');m.innerHTML=t||''}
+function ncSotr(id){return (ND.sotr||[]).find(s=>s.id===id)}
+function ncKred(id){return (ND.kred||[]).find(s=>s.id===id)}
+function ncKontrN(id){const f=(ND.ff||[]).find(s=>s.id===id);if(f)return f.n;const k=(D.kontr||[]).find(s=>s.id===id);return k?k.n:''}
+function ncSpisokFF(){const ff=(ND.ff||[]).map(s=>({id:s.id,n:s.n+' · фулфилмент',_n:norm(s.n)})),ids=new Set(ff.map(s=>s.id));
+  return ff.concat((D.kontr||[]).filter(k=>!ids.has(k.id)).map(k=>({id:k.id,n:k.n,_n:norm(k.n)})))}
+function ncVed(sid,mes){const v=(ND.ved||{})[String(sid)];if(!v)return null;if(v[mes])return {mes,x:v[mes]};
+  const ks=Object.keys(v).sort();return ks.length?{mes:ks[ks.length-1],x:v[ks[ks.length-1]],drugoy:1}:null}
+function ncPodstavit(){if(NC.vid!=='zarplata'||NC.sotr==null||!NC.auto)return;const v=ncVed(NC.sotr,NC.mes),s=ncSotr(NC.sotr);
+  const ok=v?v.x[1]:(s?s.ok:0),pr=v&&!v.drugoy?v.x[2]:0,ud=v&&!v.drugoy?v.x[3]:0;
+  NC.ok=ok?rub(ok):'';NC.pr=pr?rub(pr):'';NC.ud=ud?rub(ud):''}
+function ncKop(t){if(!String(t||'').trim())return 0;const s=parseSum(t);return s?s.kop:null}
+function ncSobrat(){const e=[],z={nomer:NC.nomer,vid:NC.vid,mesyac:NC.mes,kommentariy:NC.kom||''};
+  if(!/^\d{4}-\d\d$/.test(NC.mes||''))e.push('месяц');
+  if(NC.vid==='zarplata'){if(NC.sotr==null)e.push('сотрудник');z.sotrudnik=NC.sotr;
+    const ok=ncKop(NC.ok),pr=ncKop(NC.pr),ud=ncKop(NC.ud);if(ok==null)e.push('оклад');if(pr==null)e.push('премия');if(ud==null)e.push('удержание');
+    z.oklad_kop=ok||0;z.premiya_kop=pr||0;z.uderzhanie_kop=ud||0;z.summa=(ok||0)+(pr||0)-(ud||0);
+    if(z.summa<0)e.push('удержание больше начисленного');if(!(ok||pr))e.push('оклад или премия')}
+  else if(NC.vid==='akt_ff'){if(NC.ff==null)e.push('фулфилмент');z.kontragent=NC.ff;z.nomer_akta=NC.na||'';
+    z.data_akta=NC.da||ncPoslDen(NC.mes||'2000-01');const s=ncKop(NC.sumff);if(!s)e.push('сумма акта');z.summa_kop=s||0;z.summa=z.summa_kop}
+  else{if(NC.kr==null)e.push('кредит');z.kredit=NC.kr;const s=ncKop(NC.sumpr);if(!s)e.push('сумма процентов');z.summa_kop=s||0;z.summa=z.summa_kop}
+  return {e,z}}
+function renderNach(){if(!$('p_nach'))return;ND=D&&D.nach&&!D.nach.err?D.nach:null;
+  if(!ND){$('nach_form').innerHTML='<div class="nodata">Нет данных для начислений'+(D&&D.nach&&D.nach.err?': '+esc(D.nach.err):'')+'</div>';return}
+  if(!NC)NC=ncLoad();const v=NC.vid;
+  for(const b of document.querySelectorAll('#nach_vid .seg'))b.classList.toggle('on',b.dataset.v===v);
+  $('nach_mes').value=NC.mes||'';
+  $('nb_zp').style.display=v==='zarplata'?'':'none';$('nb_ff').style.display=v==='akt_ff'?'':'none';$('nb_ffz').style.display=v==='akt_ff'?'':'none';$('nb_pr').style.display=v==='procenty'?'':'none';
+  const s=NC.sotr!=null?ncSotr(NC.sotr):null;$('nach_sotr').value=s?s.n:'';
+  $('nach_ok').value=NC.ok||'';$('nach_pr').value=NC.pr||'';$('nach_ud').value=NC.ud||'';
+  let vh='';if(s){const ved=ncVed(NC.sotr,NC.mes);vh=(s.p?esc(s.p)+' · ':'')+(ved&&!ved.drugoy?'в ведомости Финтабло за '+ncMesRu(NC.mes)+' начислено '+rub(ved.x[0])+' ₽':
+    ved?'за '+ncMesRu(NC.mes)+' в ведомости Финтабло строки нет — подставил из '+ncMesRu(ved.mes):'оклад из карточки сотрудника')}
+  $('nach_sotr_h').innerHTML=vh;
+  $('nach_ff').value=NC.ff!=null?(NC.ffn||ncKontrN(NC.ff)):'';$('nach_na').value=NC.na||'';$('nach_da').value=NC.da||(NC.mes?ncPoslDen(NC.mes):'');
+  $('nach_sumff').value=NC.sumff||'';
+  const k=NC.kr!=null?ncKred(NC.kr):null;$('nach_kr').value=k?k.n:'';$('nach_sumpr').value=NC.sumpr||'';
+  $('nach_kom').value=NC.kom||'';
+  ncItog();renderNachDolgi();renderNachIst();
+  $('nach_zapis').textContent=v==='procenty'?'Проценты в Финтабло не начисляются (там только выплаты) — запись будет в «Учёте», долг по процентам считается здесь.':
+    ND.zapis?'':'Запись в Финтабло ещё не включена: начисление запишется в «Учёт» и уйдёт в Финтабло само, когда её включат.'}
+function ncItog(){const r=ncSobrat(),z=r.z;let t='';
+  if(NC.vid==='zarplata'&&NC.sotr!=null)t='Зарплата за '+ncMesRu(NC.mes)+' · '+esc((ncSotr(NC.sotr)||{}).n||'')+' · начислено <b>'+rub(Math.max(z.summa||0,0))+' ₽</b>';
+  else if(NC.vid==='akt_ff'&&NC.ff!=null)t='Акт ФФ за '+ncMesRu(NC.mes)+' · '+esc(NC.ffn||ncKontrN(NC.ff))+(NC.na?' № '+esc(NC.na):'')+' · <b>'+rub(z.summa||0)+' ₽</b>';
+  else if(NC.vid==='procenty'&&NC.kr!=null)t='Проценты за '+ncMesRu(NC.mes)+' · '+esc((ncKred(NC.kr)||{}).n||'')+' · <b>'+rub(z.summa||0)+' ₽</b>';
+  $('nach_itog').innerHTML=t}
+function renderNachDolgi(){const d=ND.dolg||{},box=$('nach_dolgi');if(!box)return;
+  if(d.err){box.innerHTML='<div class="sub">Долги не посчитались: '+esc(d.err)+'</div>';return}
+  box.innerHTML='<div class="dolgi"><div><span>Зарплата</span><b>'+rub(d.zp||0)+' ₽</b></div><div><span>Фулфилментам</span><b>'+rub(d.ff||0)+
+    ' ₽</b></div><div><span>Проценты</span><b>'+rub(d.proc||0)+' ₽</b></div></div>'}
+function renderNachIst(){const box=$('nach_ist');if(!box)return;const loc=ncIstGet().slice().reverse(),videl=new Set(),rows=[];
+  for(const h of loc){videl.add(h.nomer);rows.push(h)}
+  for(const x of ND.svoi||[]){if(videl.has(x.nomer))continue;
+    const kto=x.vid==='zarplata'?((ncSotr(x.sid)||{}).n||''):x.vid==='akt_ff'?ncKontrN(x.kid)+(x.na?' № '+x.na:''):((ncKred(x.krid)||{}).n||'');
+    rows.push({vid:x.vid,mes:x.mes,kto,kop:x.kop,t:x.t,err:x.st==='oshibka',ok:x.st==='ok',zam:x.zam})}
+  $('nach_ist_card').style.display=rows.length?'':'none';
+  box.innerHTML=rows.slice(0,30).map(x=>'<div class="vpi'+(x.zam?' zam':'')+'"><span class="tag'+(x.err?' b':x.ok?' ok':' w')+'">'+esc(NC_VID[x.vid]||'')+'</span> '+
+    esc(ncMesRu(x.mes))+' · '+esc(x.kto||'')+' · <b>'+rub(x.kop||0)+' ₽</b><div class="sub">'+esc(x.t||'')+'</div></div>').join('')}
+function nachOtpravit(){const r=ncSobrat();if(r.e.length){ncMsg('Не хватает: '+r.e.map(esc).join(', '),'err');return}
+  if(!SV||!SV.hosts){ncMsg('Нет канала связи в данных','err');return}
+  const pend=pendGet();if(pend&&pend.json){ncMsg('Жду ответ сервера по прошлой отправке — нажмите ещё раз через минуту','warn');return}
+  const z=Object.assign({},r.z);delete z.summa;
+  const p={v:1,tip:'nachislenie',pachka:uuid(),kto:kto(),sozdana:MSK(),zap:z};if(!$('nach_ft').checked)p.bez_kopii=1;   // 27.11 галочка
+  const kto_=NC.vid==='zarplata'?(ncSotr(NC.sotr)||{}).n:NC.vid==='akt_ff'?(NC.ffn||ncKontrN(NC.ff))+(NC.na?' № '+NC.na:''):(ncKred(NC.kr)||{}).n;
+  NC.otpr={pachka:p.pachka,kto:kto_,kop:r.z.summa};ncSave();$('nach_go').disabled=true;
+  poslatPachku(p,false).then(()=>ncMsg('Отправлено · жду ответ сервера (1–3 минуты)…','')).catch(e=>{ncMsg(esc(e.message),'err');$('nach_go').disabled=false})}
+function nachItog(pl,json){const s=pl.nach||{},ok=pl.status==='prinyato',t=ok?(s.tekst||'Записано'):((pl.oshibki||[]).join('; ')||'ошибка приёма');
+  $('nach_go').disabled=false;
+  if(ok){const o=NC&&NC.otpr&&NC.otpr.pachka===json.pachka?NC.otpr:{};const a=ncIstGet();
+    a.push({nomer:json.zap.nomer,vid:json.zap.vid,mes:json.zap.mesyac,kto:o.kto||'',kop:o.kop||0,t,ok:s.status==='ok'?1:0,err:s.status==='oshibka'?1:0});ncIstSet(a);
+    const vid=NC.vid;NC=ncDraft(vid);ncSave();renderNach();ncMsg((s.status==='oshibka'?'⚠️ ':'✅ ')+esc(t),s.status==='oshibka'?'err':'')}
+  else{if(NC)delete NC.otpr;ncSave();ncMsg('Не принято: '+esc(t),'err')}}
+/* 28.11 «Возможность подгрузки счетов ФФ»: файл → сервер разбирает (vvodf_schet.py), сначала показывает (proba), «Внести» —
+   тот же файл без proba → начисление «Акт ФФ» той же записью, что ручной ввод. Выбранный ФФ в поле выше идёт подсказкой серверу. */
+let FF_F=null;
+async function ffFayl(file){const u8=new Uint8Array(await file.arrayBuffer());
+  if(!u8.length){ncMsg('Файл пустой','err');return}
+  const gz=await vpGzip(u8),b64=u8b64Bol(gz);
+  if(b64.length>VP_MAX_B64){ncMsg('Файл слишком большой для отправки — пришлите счёт в PDF без картинок или Excel','err');return}
+  FF_F={imya:String(file.name||'счёт').slice(0,120),b64};$('ff_prev').innerHTML='';ffPoslat(true)}
+function ffPoslat(proba){if(!FF_F)return;
+  if(!window.VP_POSL&&(!SV||!SV.hosts)){ncMsg('Нет канала связи в данных','err');return}
+  const pend=window.VP_POSL?null:pendGet();if(pend&&pend.json){ncMsg('Жду ответ сервера по прошлой отправке — нажмите ещё раз через минуту','warn');return}
+  const p={v:1,tip:'ff_schet',pachka:uuid(),kto:kto(),sozdana:MSK(),fayl:FF_F.imya,gz:FF_F.b64};
+  if(proba)p.proba=true;if(NC&&NC.ff!=null)p.kontragent=NC.ff;if(!$('nach_ft').checked)p.bez_kopii=1;
+  (window.VP_POSL||poslatPachku)(p,false).then(()=>ncMsg(proba?'Файл отправлен · жду, что в нём (1–3 минуты)…':'Вношу · жду ответ сервера…','')).catch(e=>ncMsg(esc(e.message),'err'))}
+function ffItog(pl,json){const k=pl.ff_schet||{},ok=pl.status==='prinyato',box=$('ff_prev');
+  const dm=d=>d?d.slice(8,10)+'.'+d.slice(5,7)+'.'+d.slice(0,4):'';
+  const opis=k.nomer?esc((k.vid||'документ')+' № '+k.nomer+' от '+dm(k.data))+(k.ff?' · '+esc(k.ff):'')+(k.mes?' · за '+esc(ncMesRu(k.mes)):'')+(k.kop?' · <b>'+rub(k.kop)+' ₽</b>':'')
+    +(k.ip?' · покупатель '+esc(k.ip):''):'';
+  const pred=(k.pred||[]).map(x=>'<div class="sub">⚠️ '+esc(x)+'</div>').join('');
+  if(json.proba){
+    if(ok){box.innerHTML='<div class="vpcard">🔎 '+opis+pred+'<div class="knopki"><button class="btn acc" type="button" data-ff="vnesti">Внести</button><button class="btn" type="button" data-ff="otm">Не вносить</button></div></div>';
+      ncMsg('Проверьте, что программа нашла в файле, и нажмите «Внести»','')}
+    else{box.innerHTML=opis?'<div class="vpcard">🔎 '+opis+pred+'</div>':'';
+      ncMsg('Не получилось: '+esc((pl.oshibki||[]).join('; ')||'ошибка приёма')+(FF_F?'<br>Если фулфилмент не нашёлся — выберите его в поле «Фулфилмент» ниже и нажмите <button class="btn sm" type="button" data-ff="snova">Проверить ещё раз</button>':''),'err')}}
+  else{if(ok){const s=pl.ff_schet||{};box.innerHTML='';FF_F=null;
+      const a=ncIstGet();a.push({nomer:json.pachka,vid:'akt_ff',mes:s.mes||k.mes,kto:(s.ff||k.ff||'')+(s.nomer?' № '+s.nomer:''),kop:s.kop||k.kop||0,t:'из файла '+json.fayl,ok:1});ncIstSet(a);renderNachIst();
+      ncMsg('✅ Внесено: '+opis,'')}
+    else ncMsg('Не внесено: '+esc((pl.oshibki||[]).join('; ')||'ошибка приёма'),'err')}}
+function ncKey(e){if(e.key==='ArrowDown'&&P){e.preventDefault();moveOn(1)}else if(e.key==='ArrowUp'&&P){e.preventDefault();moveOn(-1)}
+  else if((e.key==='Enter'||e.key==='Tab')&&P&&P.inp===e.target){e.preventDefault();pickOn()}else if(e.key==='Escape'&&P){e.preventDefault();closeDD()}}
+function nachStart(){if(!$('p_nach'))return;ND=D&&D.nach&&!D.nach.err?D.nach:null;NC=ncLoad();if(!ND){renderNach();return}
+  $('nach_vid').addEventListener('click',e=>{const b=e.target.closest('.seg');if(!b||b.dataset.v===NC.vid)return;NC=ncDraft(b.dataset.v);ncSave();renderNach();ncMsg('')});
+  $('nach_mes').addEventListener('change',e=>{NC.mes=e.target.value;NC.da='';ncPodstavit();ncSave();renderNach()});
+  const pick=[['nach_sotr',()=>(ND.sotr||[]).map(s=>({id:s.id,n:s.n+(s.p?' · '+s.p:''),_n:norm(s.n+' '+(s.p||''))})),it=>{NC.sotr=it.id;NC.auto=1;ncPodstavit()}],
+    ['nach_ff',ncSpisokFF,it=>{NC.ff=it.id;NC.ffn=it.n.replace(/ · фулфилмент$/,'')}],
+    ['nach_kr',()=>(ND.kred||[]).map(s=>({id:s.id,n:s.n+(s.z?' · закрыт':''),_n:norm(s.n)})),it=>{NC.kr=it.id}]];
+  for(const [id,src,f] of pick){const el=$(id);el.addEventListener('input',()=>openPick(el,src,it=>{f(it);ncSave();renderNach()}));
+    el.addEventListener('focus',()=>el.select());el.addEventListener('keydown',ncKey)}
+  const pole={nach_ok:'ok',nach_pr:'pr',nach_ud:'ud',nach_na:'na',nach_da:'da',nach_sumff:'sumff',nach_sumpr:'sumpr',nach_kom:'kom'};
+  for(const id in pole){$(id).addEventListener('input',e=>{NC[pole[id]]=e.target.value;if(['ok','pr','ud'].includes(pole[id]))NC.auto=0;ncSave();ncItog()})}
+  $('nach_go').addEventListener('click',nachOtpravit);
+  $('ff_zagr').addEventListener('click',()=>$('ff_file').click());
+  $('ff_file').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f)ffFayl(f)});
+  $('p_nach').addEventListener('click',e=>{const b=e.target.closest('[data-ff]');if(!b)return;
+    if(b.dataset.ff==='vnesti'){$('ff_prev').innerHTML='';ffPoslat(false)}else if(b.dataset.ff==='snova')ffPoslat(true);
+    else{$('ff_prev').innerHTML='';FF_F=null;ncMsg('Не вносил')}});
+  $('nach_sbros').addEventListener('click',()=>{closeDD();NC=ncDraft(NC.vid);ncSave();renderNach();ncMsg('Поля очищены')});
+  renderNach()}
+
+/* отправка пачки на сервер (Канал связи 27.11) и опрос ответа */
+const PEND_LS='vvod.pend.v1';
+const CHUNK=2000;
+const POLL_MS=15000;
+const WAIT_MS=600000;
+let SV=null,PEND=null,polT=0,ansSeen=new Set();
+function pendGet(){try{return JSON.parse(localStorage.getItem(PEND_LS)||'null')}catch(e){return null}}
+function pendSet(p){PEND=p;try{localStorage.setItem(PEND_LS,p?JSON.stringify(p):'null')}catch(e){}}
+async function env(dk,pl){const kid=await kid16(dk),iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await crypto.subtle.importKey('raw',dk,'AES-GCM',false,['encrypt']);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(pl))));
+  return JSON.stringify({v:1,kid,iv:u8b64(iv),ct:u8b64(ct)})}
+async function decEnv(dk,raw){let o;try{o=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return null}
+  if(!o||o.v!==1||!o.ct)return null;const key=await crypto.subtle.importKey('raw',dk,'AES-GCM',false,['decrypt']);
+  try{const plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64u8(o.iv)},key,b64u8(o.ct)));
+    return JSON.parse(new TextDecoder().decode(plain))}catch(e){return null}}
+function pachkaJson(){const nov=S.rows.filter(x=>!x.saved).concat(S.rz.filter(x=>!x.saved));if(!nov.length)return null;
+  const p={v:1,pachka:PEND&&PEND.same?PEND.id:uuid(),kto:kto(),sozdana:MSK(),zapisi:nov.map(x=>{const y=Object.assign({},x);delete y.saved;delete y.fayl;return y})};
+  if($('v_ft')&&!$('v_ft').checked)p.bez_kopii=1;   // 27.11 галочка «в Финтабло» снята — только в «Учёте»
+  return p}
+function razbit(s,n){const out=[];for(let i=0;i<s.length;i+=n)out.push(s.slice(i,i+n));return out.length?out:['']}
+async function postHost(host,tema,body){try{const r=await fetch(host+'/'+tema,{method:'POST',body,headers:{'Content-Type':'text/plain'},cache:'no-store'});
+    return r.ok}catch(e){return false}}
+async function poslatPachku(p,retry){const dk=await dkRaw();const s=JSON.stringify(p),parts=razbit(s,CHUNK);
+  const t0=retry&&PEND?PEND.t0:Math.floor(Date.now()/1000);
+  const id=p.pachka,st=MSK(),isVp=p.tip==='vypiska'||p.tip==='ff_schet';   // 28.11 счёт ФФ — тоже файл, с паузой между кусками
+  pendSet({id,vsego:parts.length,sent:0,t0,json:p,same:!!retry,resent:retry?1:0});
+  for(let i=0;i<parts.length;i++){
+    if(isVp&&parts.length>8&&i>0)await new Promise(r=>setTimeout(r,400));
+    if(p.tip==='vypiska'&&parts.length>1&&typeof vpProgress==='function')vpProgress(i+1,parts.length);
+    const pl={id,chast:i+1,vsego:parts.length,kto:p.kto,t:st,dannye:parts[i]};
+    const body=await env(dk,pl);await Promise.all(SV.hosts.map(h=>postHost(h,SV.tema_v,body)))}
+  pendSet(Object.assign({},pendGet(),{sent:parts.length}));startPoll()}
+function startPoll(){if(polT)return;const tick=async()=>{await pollOtvet();const q=pendGet();
+  if(q&&q.sent&&!q.resent&&Date.now()-q.t0*1000>WAIT_MS){msg('Ответа нет 10 минут — отправляю ещё раз','warn');try{await poslatPachku(q.json,true)}catch(e){}}
+  polT=setTimeout(tick,POLL_MS)};tick()}
+async function pollOtvet(){if(!PEND||!SV)return;const dk=await dkRaw(),since=PEND.t0-60;
+  for(const h of SV.hosts){try{const r=await fetch(h+'/'+SV.tema_otvet+'/json?poll=1&since='+since,{cache:'no-store'});if(!r.ok)continue;
+    for(const line of (await r.text()).split('\n')){if(!line.trim())continue;let m;try{m=JSON.parse(line)}catch(e){continue}
+      if(!m||m.event!=='message'||ansSeen.has(m.id))continue;ansSeen.add(m.id);
+      const pl=await decEnv(dk,m.message);if(pl)await naOtvet(pl)}}catch(e){}}}
+async function naOtvet(pl){const p=pendGet();if(!p||pl.id!==p.id)return;
+  if(p.json&&p.json.tip==='ff_schet'){pendSet(null);if(typeof ffItog==='function')ffItog(pl,p.json);if(typeof vpSled==='function')setTimeout(vpSled,0);return}   // 28.11
+  if(p.json&&(p.json.tip==='sklad'||p.json.tip==='nachislenie')){   // 27.11 «Склад», «Начисления»: свой итог на своей вкладке
+    pendSet(null);
+    if(p.json.tip==='sklad'){if(typeof sklItog==='function')sklItog(pl,p.json)}else if(typeof nachItog==='function')nachItog(pl,p.json);
+    if(typeof vpSled==='function')setTimeout(vpSled,0);return}
+  if(p.json&&p.json.tip==='vypiska'){
+    if(pl.status==='prinyato'&&pl.vypiska){if(typeof vpItog==='function')vpItog(p.json,pl.vypiska)}
+    else if(pl.status==='oshibka'){const t=(pl.oshibki||[]).join('; ')||'ошибка приёма';
+      if(typeof vpMsg==='function')vpMsg(t,'err');if(typeof vpZapisIst==='function')vpZapisIst({imya:p.json.fayl,preview:{}},null,t)}
+    pendSet(null);if(typeof vpSled==='function')vpSled();return}
+  if(pl.status==='prinyato'){const nov=(p.json&&p.json.zapisi)||[];
+    nov.forEach(x=>{const r=S.rows.find(y=>y.np===x.np)||S.rz.find(y=>y.np===x.np);if(r){r.saved=true;r.prinyato=1}});
+    save();render();if(typeof rzPosleSohraneniya==='function')rzPosleSohraneniya('');pendSet(null);if(typeof vpSled==='function')setTimeout(vpSled,0);
+    const ft=pl.ft||{};msg('Принято: '+(pl.novyh||0)+' новых'+(ft.skopirovano!=null?', в Финтабло скопировано '+ft.skopirovano:'')+(ft.propushcheno?', уже были в Финтабло — не копировал: '+ft.propushcheno:'')+((ft.ne_vyshlo||[]).length?'<br>'+ft.ne_vyshlo.map(esc).join('<br>'):''),'')}
+  else if(pl.status==='oshibka'){const t=(pl.oshibki||[]).join('; ')||'ошибка приёма';msg(t,'err');
+    if(PEND&&Date.now()-PEND.t0*1000>WAIT_MS)msg('Не дошло до сервера — отправлю ещё раз','warn')}}
+function otpravit(){const p=pachkaJson();if(!p){msg('Нечего отправлять');return}
+  if(!SV||!SV.hosts){msg('Нет канала связи в данных','err');return}
+  const pend=pendGet();const retry=pend&&pend.id===p.pachka;
+  poslatPachku(p,retry).then(()=>msg('Отправлено на сервер · жду ответ…',''))
+    .catch(e=>msg(esc(e.message),'err'))}
+function proveritPend(){PEND=pendGet();if(PEND&&PEND.sent)startPoll()}
+/* запуск — после остальных скриптов */
+async function vvodBoot(){
+  if(window.VVOD){D=window.VVOD;return D}
+  if(!RS.get('dk',null)){let fp='';try{fp=JSON.parse(localStorage.getItem('pan.fp')||'""')}catch(e){}
+    if(!fp||!(await keyByPass(fp).catch(()=>false))){lockOn('');return null}}
+  try{D=await loadPod(false);window.VVOD=D;SV=D.svyaz||null;lockOff();return D}catch(e){
+    if(e.message==='NEED_KEY'||e.message==='BAD_KEY'){lockOn(e.message==='BAD_KEY'?'Ссылка устарела — нужна новая':'');
+      RS.del('dk');return null}
+    $('nodata').style.display='block';$('nodata').textContent='Не открылось: '+e.message;return null}}
+function vvodInit(){
+  if(!D){$('nodata').style.display='block';if($('vvodcard'))$('vvodcard').style.display='none';return}
+  SV=SV||(D.svyaz||null);
+  $('nodata').style.display='none';$('vvodcard').style.display='';
+  D.scheta.forEach(s=>SCH.set(s.id,s));D.statyi.forEach(s=>ST.set(s.id,s));D.kontr.forEach(s=>KO.set(s.id,s));prInit();
+  load();
+  for(const e of S.rows)learn(e);
+  $('istochnik').textContent='Подсказки: живая база · на '+ddmm(D.segodnya)+' · счетов '+D.scheta.length+
+    ' · статей '+D.statyi.length+' · отправка — кнопка «Отправить»';
+  newRow(true);render();if(!naTelefone())F.kop.focus();
+  if(typeof sklStart==='function')sklStart();if(typeof nachStart==='function')nachStart();   // 27.11 «Склад», «Начисления»
+  rzStart();if(typeof vpStart==='function')vpStart();proveritPend();
+  window.VVOD_TEST={R:()=>R,S:()=>S,hintSt,klyuch,parseSum,parseDate,stemy,razbor,paraKand,kontrSchet,sl:schetaPoSlovam,MSG:()=>MSG,
+    probe:(kind,q)=>{const l=filt(ISTOCH[kind](),q,1);return l.length?l[0].id:null},rz:()=>rzSostoyanie(),
+    rzProbe:q=>{const o=rzTek();if(!o)return null;const l=filt(rzStatyi(o),q,1);return l.length?l[0].id:null},
+    skl:()=>SKL,sklSobrat:()=>sklSobrat(),nc:()=>NC,ncSobrat:()=>ncSobrat(),vpItog:(a,b)=>vpItog(a,b),ffItog:(a,b)=>ffItog(a,b)}}
+const lk=$('lock');
+if(lk)lk.addEventListener('submit',e=>{e.preventDefault();const t=$('#lnk').value.trim();if(!t)return;
+  $('#pwgo').disabled=true;$('#pwerr').textContent='';const isL=/k=/.test(t);
+  (isL?Promise.resolve(keyFrom(t)):keyByPass(t).catch(()=>false)).then(async ok=>{
+    if(!ok){$('#pwgo').disabled=false;$('#pwerr').textContent=isL?'Это не личная ссылка «Учёта»':'Пароль не подошёл';return}
+    if(!isL){try{localStorage.setItem('pan.fp',JSON.stringify(t))}catch(x){}}
+    await vvodBoot();vvodInit()})});
+if(window.VVOD){D=window.VVOD;vvodInit()}
+else vvodBoot().then(()=>vvodInit());
+})();
+</script>
+</body>
+</html>
